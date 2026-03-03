@@ -15,7 +15,6 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 import team2679.atlantiskit.periodicalerts.PeriodicAlertsGroup;
 
 public class RollerIOSparkMax extends RollerIO {
-
     private SparkMax motor = new SparkMax(RobotMap.CANBUS.ROLLER_ID, MotorType.kBrushless);
 
     public RollerIOSparkMax(LogFieldsTable fields) {
@@ -30,8 +29,8 @@ public class RollerIOSparkMax extends RollerIO {
                 () -> motorConfigError, motor::getWarnings, motor::getFaults, "Roller Config");
     }
 
-    public void setSpeed(double speed) {
-        motor.set(speed);
+    public void setVoltage(double voltage) {
+        motor.setVoltage(voltage);
     }
 
     protected double getCurrent() {

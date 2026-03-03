@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.allCommands.AllCommands;
 import frc.robot.shooting.ShootingCalculator;
 import frc.robot.shooting.ShootingMeasurments;
-import frc.robot.subsystems.elevator.Elevator;
+// import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.flywheel.FlyWheel;
 import frc.robot.subsystems.fourbar.Fourbar;
 import frc.robot.subsystems.hood.Hood;
@@ -37,7 +37,7 @@ import frc.robot.subsystems.roller.Roller;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveCommands;
 import frc.robot.subsystems.swerve.SwerveConstants.PathPlanner;
-import frc.robot.subsystems.vision.Vision;
+// import frc.robot.subsystems.vision.Vision;
 import frc.robot.utils.NaturalXboxController;
 import team2679.atlantiskit.tunables.Tunable;
 import team2679.atlantiskit.tunables.TunableBuilder;
@@ -52,8 +52,8 @@ public class RobotContainer {
     private final Index index = new Index();
     private final Hood hood = new Hood();
     private final FlyWheel flyWheel = new FlyWheel();
-    private final Elevator elevator = new Elevator();
-    private final Vision vision = new Vision();
+    // private final Elevator elevator = new Elevator();
+    // private final Vision vision = new Vision();
 
     private final ShootingCalculator hubShootingCalculator = new ShootingCalculator(new Pose3d(),
             ShootingMeasurments.ALL_MEASURMENTS_HUB);
@@ -61,7 +61,7 @@ public class RobotContainer {
             new Pose3d(), ShootingMeasurments.ALL_MEASURMENTS_DELIVRY);
 
     private final SwerveCommands swerveCommands = new SwerveCommands(swerve);
-    private final AllCommands allCommands = new AllCommands(fourbar, roller, flyWheel, hood, index, elevator);
+    private final AllCommands allCommands = new AllCommands(fourbar, roller, flyWheel, hood, index);
 
     private final PowerDistribution pdh = new PowerDistribution();
 
@@ -84,6 +84,8 @@ public class RobotContainer {
             : deliveryShootingCalculator).getHoodAngleDegrees();
     private final DoubleSupplier flywheelSpeedSupplier = () -> (isShootingHub.getAsBoolean() ? hubShootingCalculator
             : deliveryShootingCalculator).getFlyWheelRPM();
+    private final DoubleSupplier swerveYawAngleSupplier = () -> (isShootingHub.getAsBoolean() ? hubShootingCalculator
+            : deliveryShootingCalculator).getRobotYawDegreesCCW();
 
     private SendableChooser<Command> autoChooser = null;
 
@@ -115,7 +117,7 @@ public class RobotContainer {
                 driverController::getLeftY,
                 driverController::getLeftX,
                 driverController::getRightX,
-                () -> 0.0,
+                swerveYawAngleSupplier,
                 driverController.y(),
                 driverController.leftBumper().negate()::getAsBoolean,
                 driverController.rightBumper()::getAsBoolean);
@@ -202,12 +204,12 @@ public class RobotContainer {
     }
 
     public void periodicUpdate() {
-        vision.update();
-        hubShootingCalculator.update(PoseEstimator.getInstance().getEstimatedPose(), isRedAlliance());
+        // vision.update();
+        // hubShootingCalculator.update(PoseEstimator.getInstance().getEstimatedPose(), isRedAlliance());
     }
 
     public static boolean isRedAlliance() {
-        return isRedAlliance != null && isRedAlliance.get();
+        return isRedAlliance.get() != null && isRedAlliance.get();
     }
 
     public Command getAutonomousCommand() {

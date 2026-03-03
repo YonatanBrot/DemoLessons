@@ -4,6 +4,9 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
+import team2679.atlantiskit.tunables.TunablesManager;
+import team2679.atlantiskit.tunables.extensions.TunableCommand;
+import team2679.atlantiskit.valueholders.DoubleHolder;
 import team2679.atlantiskit.valueholders.ValueHolder;
 
 public class FourbarCommands {
@@ -11,6 +14,7 @@ public class FourbarCommands {
 
     public FourbarCommands(Fourbar fourbar) {
         this.fourbar = fourbar;
+        TunablesManager.add("TunableSetVoltages/FourbarSetVoltage", tunableSetVoltage().fullTunable());
     }
 
     public Command moveToAngle(DoubleSupplier angle) {
@@ -36,5 +40,13 @@ public class FourbarCommands {
             double ignore_mg = fourbar.calculateFeedforward(fourbar.getAngleDegrees(), fourbar.getVelocity(), false);
             fourbar.setVoltage(ignore_mg + speed.getAsDouble() * FourbarConstants.MAX_VOLTAGE);
         }).withName("Fourbar manual controller");
+    }
+
+    private TunableCommand tunableSetVoltage() {
+        return TunableCommand.wrap((tunablesTable) -> {
+            DoubleHolder voltage = tunablesTable.addNumber("voltage", 0.0);
+            return fourbar.run(() -> fourbar.setVoltage(voltage.get())).finallyDo(fourbar::stop)
+                .withName("Tunable fourbar set voltage");
+        });
     }
 }

@@ -47,6 +47,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
     @Override
     public void periodic() {
         sensorHelper.update(io.angleDegrees.getAsDouble());
+        fieldsTable.recordOutput("angle", getAngleDegrees());
         fieldsTable.recordOutput("Current command",
                 getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
     }
@@ -74,6 +75,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
         }
         voltage = MathUtil.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE);
         fieldsTable.recordOutput("Desired Voltage", voltage);
+        io.setVolt(voltage);
     }
 
     public void stop() {

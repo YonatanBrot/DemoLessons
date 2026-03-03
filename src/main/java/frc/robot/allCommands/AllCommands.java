@@ -1,7 +1,7 @@
 package frc.robot.allCommands;
 
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorCommands;
+// import frc.robot.subsystems.elevator.Elevator;
+// import frc.robot.subsystems.elevator.ElevatorCommands;
 import frc.robot.subsystems.flywheel.FlyWheel;
 import frc.robot.subsystems.flywheel.FlyWheelCommands;
 import frc.robot.subsystems.fourbar.Fourbar;
@@ -28,30 +28,29 @@ public class AllCommands {
     private FlyWheel flyWheel;
     private Hood hood;
     private Index index;
-    private Elevator elevator;
+    // private Elevator elevator;
 
     private FourbarCommands fourbarCMDs;
     private RollerCommands rollerCMDs;
     private FlyWheelCommands flyWheelCMDs;
     private HoodCommands hoodCMDs;
     private IndexCommands indexCMDs;
-    private ElevatorCommands elevatorCMDs;
+    // private ElevatorCommands elevatorCMDs;
 
-    public AllCommands(Fourbar fourbar, Roller roller, FlyWheel flyWheel, Hood hood, Index index,
-            Elevator elevator) {
+    public AllCommands(Fourbar fourbar, Roller roller, FlyWheel flyWheel, Hood hood, Index index) {
         this.fourbar = fourbar;
         this.roller = roller;
         this.flyWheel = flyWheel;
         this.hood = hood;
         this.index = index;
-        this.elevator = elevator;
+        // this.elevator = elevator;
 
         fourbarCMDs = new FourbarCommands(this.fourbar);
         rollerCMDs = new RollerCommands(this.roller);
         flyWheelCMDs = new FlyWheelCommands(this.flyWheel);
         hoodCMDs = new HoodCommands(this.hood);
         indexCMDs = new IndexCommands(this.index);
-        elevatorCMDs = new ElevatorCommands(this.elevator);
+        // elevatorCMDs = new ElevatorCommands(this.elevator);
     }
 
     public Command intake() {
@@ -88,13 +87,13 @@ public class AllCommands {
         });
     }
 
-    public Command climb() {
-        return elevatorCMDs.moveToHeight(ELEVATOR_CLIMB_HEIGHT_METERS).withName("climb");
-    }
+    // public Command climb() {
+    //     return elevatorCMDs.moveToHeight(ELEVATOR_CLIMB_HEIGHT_METERS).withName("climb");
+    // }
 
-    public Command unclimb() {
-        return elevatorCMDs.moveToHeight(ELEVATOR_UNCLIMB_HEIGHT_METERS).withName("unclimb");
-    }
+    // public Command unclimb() {
+    //     return elevatorCMDs.moveToHeight(ELEVATOR_UNCLIMB_HEIGHT_METERS).withName("unclimb");
+    // }
 
     public Command hoodDefaultMove(DoubleSupplier angle) {
         return hoodCMDs.tunableHoming().andThen(hoodCMDs.moveToAngle(angle))
@@ -111,8 +110,8 @@ public class AllCommands {
             roller.stop();
             flyWheel.stop();
             hood.stop();
-            elevator.stop();
-        }, fourbar, roller, flyWheel, hood, elevator)
+            // elevator.stop();
+        }, fourbar, roller, flyWheel, hood)
                 .ignoringDisable(true)
                 .withName("stopAll");
     }

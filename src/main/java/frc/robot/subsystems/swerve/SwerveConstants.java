@@ -39,17 +39,17 @@ public final class SwerveConstants {
 
         public static final double PREVENT_JITTERING_MULTIPLAYER = 0.01;
 
-        public static final double DRIVE_GEAR_RATIO = 6.756;
-        public static final double TURN_GEAR_RATIO = 12.8;
+        public static final double DRIVE_GEAR_RATIO = 6.12;
+        public static final double TURN_GEAR_RATIO = 150.0 / 7;
 
         public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2);
         public static final double WHEEL_CIRCUMFERENCE_METERS = 2 * Math.PI * WHEEL_RADIUS_METERS;
 
         public static final double[] OFFSETS = {
-                -62.40234375 + 180,
-                92.021484375 + 180,
-                49.482421875,
-                -30.05859375 + 180,
+                113.642578125,
+                -92.900390625,
+                -127.96875 + 180,
+                145.986328125,
         };
 
         public static final double DRIVE_STATOR_CURRENT_LIMIT = 90;
@@ -69,8 +69,8 @@ public final class SwerveConstants {
         public static final double SIM_TURN_MOTOR_KD = 0;
     }
 
-    public static final double TRACK_LENGTH_METERS = 0.595;
-    public static final double TRACK_WIDTH_METERS = 0.595;
+    public static final double TRACK_LENGTH_METERS = 0.69;
+    public static final double TRACK_WIDTH_METERS = 0.69;
 
     public static final Translation2d[] MODULES_LOCATIONS = {
             new Translation2d(TRACK_LENGTH_METERS / 2, TRACK_WIDTH_METERS / 2),

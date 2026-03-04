@@ -55,7 +55,7 @@ public class AllCommands {
 
     public Command intake() {
         return Commands.parallel(
-                fourbarCMDs.open(),
+                fourbarCMDs.bounce(FOURBAR_INTAKE_BOUNCE_MIN_ANGLE, FOURBAR_INTAKE_BOUNCE_MAX_ANGLE),
                 rollerCMDs.spin(ROLLER_VOLTAGE)).withName("intake");
     }
 

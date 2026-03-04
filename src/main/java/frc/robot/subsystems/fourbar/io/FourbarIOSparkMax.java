@@ -8,7 +8,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.RobotMap;
 import frc.robot.subsystems.fourbar.FourbarConstants;
 import frc.robot.utils.AlertsFactory;
@@ -19,7 +18,6 @@ public class FourbarIOSparkMax extends FourbarIO {
 
     private SparkMax motor = new SparkMax(RobotMap.CANBUS.FOURBAR_ID, MotorType.kBrushless);
     private SparkMaxConfig motorConfig = new SparkMaxConfig();
-    private DutyCycleEncoder encoder = new DutyCycleEncoder(RobotMap.DIO.FOURBAR_ENCODER_ID);
 
     public FourbarIOSparkMax(LogFieldsTable fields) {
         super(fields);
@@ -30,16 +28,12 @@ public class FourbarIOSparkMax extends FourbarIO {
                 PersistMode.kNoPersistParameters);
         AlertsFactory.revMotor(PeriodicAlertsGroup.defaultInstance.getSubGroup("Fourbar"),
                 () -> motorConfigError, motor::getWarnings, motor::getFaults, "motor");
-
-        encoder.setDutyCycleRange(0, 1);
+        
+        motor.getEncoder().setPosition(0);
     }
 
-    protected double getAngleDegrees() {
-        return encoder.get();
-    }
-
-    protected boolean isEncoderConnected() {
-        return encoder.isConnected();
+    protected double getAngleRotations() {
+        return motor.getEncoder().getPosition();
     }
 
     protected double getCurrent() {

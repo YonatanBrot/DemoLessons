@@ -46,10 +46,10 @@ public final class SwerveConstants {
         public static final double WHEEL_CIRCUMFERENCE_METERS = 2 * Math.PI * WHEEL_RADIUS_METERS;
 
         public static final double[] OFFSETS = {
-                -26.3671875 + 180,
-                -55.72265625 + 180,
-                82.177734375 + 180,
-                39.7265625 + 180,
+                -62.40234375 + 180,
+                92.021484375 + 180,
+                49.482421875,
+                -30.05859375 + 180,
         };
 
         public static final double DRIVE_STATOR_CURRENT_LIMIT = 90;

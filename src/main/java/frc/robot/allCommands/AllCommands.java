@@ -55,8 +55,8 @@ public class AllCommands {
 
     public Command intake() {
         return Commands.parallel(
-                fourbarCMDs.getToAngleDegrees(FOURBAR_OPEN_ANGLE_DEG),
-                rollerCMDs.spin(ROLLER_SPEED_RPM)).withName("intake");
+                fourbarCMDs.open(),
+                rollerCMDs.spin(ROLLER_VOLTAGE)).withName("intake");
     }
 
     public Command stopIntake() {
@@ -87,6 +87,10 @@ public class AllCommands {
         });
     }
 
+    public Command hoodFollow(DoubleSupplier angle) {
+        return hoodCMDs.moveToAngle(angle);
+    }
+
     // public Command climb() {
     //     return elevatorCMDs.moveToHeight(ELEVATOR_CLIMB_HEIGHT_METERS).withName("climb");
     // }
@@ -94,11 +98,6 @@ public class AllCommands {
     // public Command unclimb() {
     //     return elevatorCMDs.moveToHeight(ELEVATOR_UNCLIMB_HEIGHT_METERS).withName("unclimb");
     // }
-
-    public Command hoodDefaultMove(DoubleSupplier angle) {
-        return hoodCMDs.tunableHoming().andThen(hoodCMDs.moveToAngle(angle))
-            .withName("hoodDefaultMove");
-    }
 
     public Command fourbarMoveToRest() {
         return fourbarCMDs.moveToAngle(() -> FOURBAR_MID_ANGLE_DEG).withName("fourbarMoveToRest");

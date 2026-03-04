@@ -16,10 +16,9 @@ public class FlyWheelCommands {
     }
 
     public Command reachSpeed(DoubleSupplier speedRPM) {
-        return flyWheel.runOnce(flyWheel::resetPID)
-                .andThen(flyWheel.run(() -> {
-                    flyWheel.setVoltage(flyWheel.calculateFeedForward(speedRPM.getAsDouble(), true));
-                })).finallyDo(flyWheel::stop).withName("Flywheel reach speed");
+        return flyWheel.run(() -> {
+            flyWheel.setVoltage(flyWheel.calculateFeedForward(speedRPM.getAsDouble()));
+        }).finallyDo(flyWheel::stop).withName("Flywheel reach speed");
     }
 
     public Command manualController(DoubleSupplier precentageVoltage) {

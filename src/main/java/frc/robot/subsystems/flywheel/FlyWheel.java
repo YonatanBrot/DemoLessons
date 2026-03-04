@@ -1,7 +1,6 @@
 package frc.robot.subsystems.flywheel;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -20,8 +19,6 @@ public class FlyWheel extends SubsystemBase implements Tunable {
         ? new FlyWheelIOFalcon(fieldsTable) 
         : new FlyWheelIOSim(fieldsTable);
 
-    private PIDController pid = new PIDController(KP, KI, KD);
-    
     private TunableSimpleMotorFeedforward feedforward = Robot.isSimulation() ?
         new TunableSimpleMotorFeedforward(Sim.SIM_KS, Sim.SIM_KV, Sim.SIM_KA) :
         new TunableSimpleMotorFeedforward(KS, KV, KA);
@@ -47,13 +44,10 @@ public class FlyWheel extends SubsystemBase implements Tunable {
         io.setVoltage(MathUtil.clamp(volt, -MAX_VOLTAGE, MAX_VOLTAGE));
     }
 
-    public double calculateFeedForward(double desiredSpeed, boolean usePID) {
+    public double calculateFeedForward(double desiredSpeed) {
         fieldsTable.recordOutput("Desired RPM", desiredSpeed);
         isAtSpeed(desiredSpeed);
         double speed = feedforward.calculate(desiredSpeed);
-        if (usePID) {
-            speed += pid.calculate(getMotorsRPM(), desiredSpeed);
-        }
         return speed;
     }
 
@@ -68,13 +62,8 @@ public class FlyWheel extends SubsystemBase implements Tunable {
         io.setVoltage(0);
     }
 
-    public void resetPID(){
-        pid.reset();
-    }
-
     @Override
     public void initTunable(TunableBuilder builder) {
-        builder.addChild("Flywheel PID Controller", pid);
         builder.addChild("Flywheel FeedForward", feedforward);
     }
 }

@@ -26,6 +26,7 @@ public class IndexIOSparkMax extends IndexIO {
         SparkMaxConfig spindexMotorConfig = new SparkMaxConfig();
         spindexMotorConfig.smartCurrentLimit(IndexConstants.SPINDEX_CURRENT_LIMIT);
         spindexMotorConfig.idleMode(IdleMode.kCoast);
+        spindexMotorConfig.inverted(true);
         REVLibError spindexConfigError = spindexMotor.configure(spindexMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         AlertsFactory.revMotor(alerts, 
             () -> spindexConfigError, spindexMotor::getWarnings, spindexMotor::getFaults, "Spinex Motor");
@@ -33,6 +34,7 @@ public class IndexIOSparkMax extends IndexIO {
         SparkMaxConfig indexerMotorConfig = new SparkMaxConfig();
         indexerMotorConfig.smartCurrentLimit(IndexConstants.INDEXER_CURRENT_LIMIT);
         indexerMotorConfig.idleMode(IdleMode.kCoast);
+        indexerMotorConfig.inverted(true);
         REVLibError indexerConfigError = indexerMotor.configure(indexerMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         AlertsFactory.revMotor(alerts, () -> indexerConfigError, indexerMotor::getWarnings, indexerMotor::getFaults, "Indexer Motor");
     }

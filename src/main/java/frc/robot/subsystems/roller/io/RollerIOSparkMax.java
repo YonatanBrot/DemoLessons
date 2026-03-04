@@ -23,6 +23,7 @@ public class RollerIOSparkMax extends RollerIO {
         SparkMaxConfig motorConfig = new SparkMaxConfig();
         motorConfig.smartCurrentLimit(RollerConstants.CURRENT_LIMIT);
         motorConfig.idleMode(IdleMode.kBrake);
+        motorConfig.inverted(true);
         REVLibError motorConfigError = motor.configure(motorConfig, ResetMode.kNoResetSafeParameters,
                 PersistMode.kNoPersistParameters);
         AlertsFactory.revMotor(PeriodicAlertsGroup.defaultInstance,

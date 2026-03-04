@@ -31,7 +31,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
     private boolean calibrated = false;
 
     public Fourbar() {
-        sensorHelper = new RotationalSensorHelper(0, MAX_ANGLE);
+        sensorHelper = new RotationalSensorHelper(MAX_ANGLE);
         TunablesManager.add(getName(), (Tunable) this);
     }
 
@@ -68,10 +68,10 @@ public class Fourbar extends SubsystemBase implements Tunable {
     }
 
     public void setVoltage(double voltage) {
-        if ((getAngleDegrees() > maxAngle && voltage > 0)
-                || (getAngleDegrees() < minAngle && voltage < 0)) {
-            voltage = 0.0;
-        }
+        // if (((getAngleDegrees() > maxAngle && voltage > 0)
+        //         || (getAngleDegrees() < minAngle && voltage < 0)) && isCalibrated()) {
+        //     voltage = 0.0;
+        // }
         voltage = MathUtil.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE);
         desiredVoltage = voltage;
         io.setVolt(voltage);
@@ -81,10 +81,12 @@ public class Fourbar extends SubsystemBase implements Tunable {
         desiredVoltage = 0;
         io.setVolt(0);
     }
-    
+
     public double calculatePID(double desiredAngleDegrees) {
-        if (desiredAngleDegrees < minAngle || desiredAngleDegrees > maxAngle) return 0.0;
-        if (isAtAngle(desiredAngleDegrees)) return 0.0;
+        if (desiredAngleDegrees < minAngle || desiredAngleDegrees > maxAngle)
+            return 0.0;
+        if (isAtAngle(desiredAngleDegrees))
+            return 0.0;
         fieldsTable.recordOutput("Desired angle PID", desiredAngleDegrees);
         return pid.calculate(getAngleDegrees(), desiredAngleDegrees);
     }
@@ -94,7 +96,8 @@ public class Fourbar extends SubsystemBase implements Tunable {
     }
 
     private boolean isStuck() {
-        return isStuckDebouncer.calculate(Math.abs(desiredVoltage) > 0 && Math.abs(getVelocity()) < STUCK_VELOCITY_THRESHOLD_DEG_PER_SEC);
+        return isStuckDebouncer.calculate(
+                Math.abs(desiredVoltage) > 0 && Math.abs(getVelocity()) < STUCK_VELOCITY_THRESHOLD_DEG_PER_SEC);
     }
 
     public boolean isCalibrated() {

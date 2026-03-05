@@ -5,6 +5,7 @@ import static frc.robot.subsystems.fourbar.FourbarConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.fourbar.io.FourbarIO;
@@ -22,16 +23,13 @@ public class Fourbar extends SubsystemBase implements Tunable {
     private FourbarIO io = Robot.isReal() ? new FourbarIOSparkMax(fieldsTable) : new FourbarIOSim(fieldsTable);
     private RotationalSensorHelper sensorHelper;
 
-    private double minAngle = MIN_ANGLE;
-    private double maxAngle = MAX_ANGLE;
-
-    private final Debouncer isStuckDebouncer = new Debouncer(STUCK_DEBOUNCE_SEC);
+    private final Debouncer isStuckDebouncer = new Debouncer(STUCK_DEBOUNCE_SEC, DebounceType.kRising);
 
     private double desiredVoltage = 0;
     private boolean calibrated = false;
 
     public Fourbar() {
-        sensorHelper = new RotationalSensorHelper(MAX_ANGLE);
+        sensorHelper = new RotationalSensorHelper(0);
         TunablesManager.add(getName(), (Tunable) this);
     }
 
@@ -50,7 +48,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
         fieldsTable.recordOutput("Current command",
                 getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
         if (!calibrated && isStuck()) {
-            sensorHelper.resetAngle(MIN_ANGLE);
+            sensorHelper.resetAngle(0);
             calibrated = true;
         }
     }
@@ -83,8 +81,6 @@ public class Fourbar extends SubsystemBase implements Tunable {
     }
 
     public double calculatePID(double desiredAngleDegrees) {
-        if (desiredAngleDegrees < minAngle || desiredAngleDegrees > maxAngle)
-            return 0.0;
         if (isAtAngle(desiredAngleDegrees))
             return 0.0;
         fieldsTable.recordOutput("Desired angle PID", desiredAngleDegrees);
@@ -95,7 +91,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
         return Math.abs(getAngleDegrees() - angle) < ANGLE_TOLLERANCE;
     }
 
-    private boolean isStuck() {
+    public boolean isStuck() {
         return isStuckDebouncer.calculate(
                 Math.abs(desiredVoltage) > 0 && Math.abs(getVelocity()) < STUCK_VELOCITY_THRESHOLD_DEG_PER_SEC);
     }
@@ -108,11 +104,5 @@ public class Fourbar extends SubsystemBase implements Tunable {
     public void initTunable(TunableBuilder builder) {
         builder.addChild("Forbar PID", pid);
         builder.addChild("Forbar RotationalSensorHelper", sensorHelper);
-        builder.addDoubleProperty("Forbar minAngle", () -> minAngle, (newMinAngle) -> {
-            minAngle = newMinAngle;
-        });
-        builder.addDoubleProperty("Forbar maxAngle", () -> maxAngle, (newMaxAngle) -> {
-            maxAngle = newMaxAngle;
-        });
     }
 }

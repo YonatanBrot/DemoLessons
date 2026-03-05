@@ -100,7 +100,7 @@ public class AllCommands {
     // }
 
     public Command fourbarMoveToRest() {
-        return fourbarCMDs.moveToAngle(() -> FOURBAR_MID_ANGLE_DEG).withName("fourbarMoveToRest");
+        return fourbarCMDs.moveToAngle(() -> FOURBAR_MID_ANGLE).withName("fourbarMoveToRest");
     }
 
     public Command stopAll() {

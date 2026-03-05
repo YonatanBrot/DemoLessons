@@ -1,13 +1,14 @@
 package frc.robot.subsystems.fourbar;
 
+import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSING_VOLTAGE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.HOMING_VOLTAGE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.MAX_ANGLE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.MIN_ANGLE;
+import static frc.robot.subsystems.fourbar.FourbarConstants.OPENING_VOLTAGE;
 
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.utils.MathUtils;
 import team2679.atlantiskit.tunables.TunablesManager;
 import team2679.atlantiskit.tunables.extensions.TunableCommand;
@@ -22,6 +23,9 @@ public class FourbarCommands {
         TunablesManager.add(fourbar.getName() + "/TunableMoveToAngle", tunableMoveToAngle().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableHoming", tunableHoming().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableBounce", tunableBounce().fullTunable());
+        TunablesManager.add(fourbar.getName() + "/Open", TunableCommand.wrap((tunablesTable) -> open()).fullTunable());
+        TunablesManager.add(fourbar.getName() + "/Close",
+                TunableCommand.wrap((tunablesTable) -> close()).fullTunable());
     }
 
     public Command moveToAngle(DoubleSupplier angle) {
@@ -47,7 +51,8 @@ public class FourbarCommands {
 
     public Command bounce(DoubleSupplier minAngle, DoubleSupplier maxAngle) {
         return moveToAngle(
-                () -> MathUtils.cosineWave(minAngle.getAsDouble(), maxAngle.getAsDouble(), Timer.getFPGATimestamp() * 3))
+                () -> MathUtils.cosineWave(minAngle.getAsDouble(), maxAngle.getAsDouble(),
+                        Timer.getFPGATimestamp() * 3))
                 .withName("bounce");
     }
 
@@ -61,17 +66,23 @@ public class FourbarCommands {
 
     public TunableCommand tunableMoveToAngle() {
         return TunableCommand.wrap((tunablesTable) -> {
-            DoubleHolder angle = tunablesTable.addNumber("angle", MIN_ANGLE);
+            DoubleHolder angle = tunablesTable.addNumber("angle", 0.0);
             return moveToAngle(angle::get).withName("tunableMoveToAngle");
         });
     }
 
     public Command open() {
-        return moveToAngle(MAX_ANGLE).withName("Open");
+        return Commands.sequence(
+                fourbar.run(() -> fourbar.setVoltage(OPENING_VOLTAGE)).until(fourbar::isStuck),
+                fourbar.run(() -> fourbar.setVoltage(0)))
+                .withName("close");
     }
 
     public Command close() {
-        return moveToAngle(MIN_ANGLE).withName("Close");
+        return Commands.sequence(
+                fourbar.run(() -> fourbar.setVoltage(CLOSING_VOLTAGE)).until(fourbar::isStuck),
+                fourbar.run(() -> fourbar.setVoltage(0)))
+                .withName("close");
     }
 
     public Command homing() {

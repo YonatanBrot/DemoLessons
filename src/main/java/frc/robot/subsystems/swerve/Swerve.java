@@ -83,6 +83,7 @@ public class Swerve extends SubsystemBase implements Tunable {
 
     fieldsTable.recordOutput("Is gryo connected", isGyroConnected());
     fieldsTable.recordOutput("Yaw degrees CCW", getGyroYawDegreesCCW());
+    fieldsTable.recordOutput("Modules Current Positions", getModulePositions());
     fieldsTable.recordOutput("Current Command", getCurrentCommand() != null ? getCurrentCommand().getName() : "none");
   }
 

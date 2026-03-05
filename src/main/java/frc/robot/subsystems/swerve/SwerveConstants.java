@@ -48,8 +48,8 @@ public final class SwerveConstants {
         public static final double[] OFFSETS = {
                 113.642578125,
                 -92.900390625,
-                -127.96875 + 180,
-                145.986328125,
+                52.20703125,
+                149.0625,
         };
 
         public static final double DRIVE_STATOR_CURRENT_LIMIT = 90;

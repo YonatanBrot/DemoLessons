@@ -5,6 +5,7 @@ import static frc.robot.subsystems.fourbar.FourbarConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.fourbar.io.FourbarIO;
@@ -15,12 +16,17 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 import team2679.atlantiskit.tunables.Tunable;
 import team2679.atlantiskit.tunables.TunableBuilder;
 import team2679.atlantiskit.tunables.TunablesManager;
+import team2679.atlantiskit.tunables.extensions.TunableArmFeedforward;
+import team2679.atlantiskit.tunables.extensions.TunableTrapezoidProfile;
 
 public class Fourbar extends SubsystemBase implements Tunable {
-    private PIDController pid = new PIDController(KP, KI, KD);
-    private LogFieldsTable fieldsTable = new LogFieldsTable(getName());
-    private FourbarIO io = Robot.isReal() ? new FourbarIOSparkMax(fieldsTable) : new FourbarIOSim(fieldsTable);
-    private RotationalSensorHelper sensorHelper;
+    private final PIDController pid = new PIDController(KP, KI, KD);
+    private final TunableArmFeedforward feedforward = new TunableArmFeedforward(KS, KG, KV);
+    private final TunableTrapezoidProfile trapezoidProfile = new TunableTrapezoidProfile(
+            new TrapezoidProfile.Constraints(MAX_VELOCITY_DEG_PER_SEC, MAX_ACCELERATION_DEG_PER_SEC));
+    private final LogFieldsTable fieldsTable = new LogFieldsTable(getName());
+    private final FourbarIO io = Robot.isReal() ? new FourbarIOSparkMax(fieldsTable) : new FourbarIOSim(fieldsTable);
+    private final RotationalSensorHelper sensorHelper;
 
     private double minAngle = MIN_ANGLE;
     private double maxAngle = MAX_ANGLE;
@@ -68,10 +74,10 @@ public class Fourbar extends SubsystemBase implements Tunable {
     }
 
     public void setVoltage(double voltage) {
-        // if (((getAngleDegrees() > maxAngle && voltage > 0)
-        //         || (getAngleDegrees() < minAngle && voltage < 0)) && isCalibrated()) {
-        //     voltage = 0.0;
-        // }
+        if (((getAngleDegrees() > maxAngle && voltage > 0)
+                || (getAngleDegrees() < minAngle && voltage < 0)) && isCalibrated()) {
+            voltage = 0.0;
+        }
         voltage = MathUtil.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE);
         desiredVoltage = voltage;
         io.setVolt(voltage);
@@ -82,13 +88,20 @@ public class Fourbar extends SubsystemBase implements Tunable {
         io.setVolt(0);
     }
 
-    public double calculatePID(double desiredAngleDegrees) {
+    public TrapezoidProfile.State calculateTrapezoidProfile(double time, TrapezoidProfile.State initialState,
+            TrapezoidProfile.State desiredState) {
+        return trapezoidProfile.calculate(time, initialState, desiredState);
+    }
+
+    public double calculateFeedforward(double desiredAngleDegrees, double desiredSpeedDegPerSec, boolean usePID) {
         if (desiredAngleDegrees < minAngle || desiredAngleDegrees > maxAngle)
             return 0.0;
         if (isAtAngle(desiredAngleDegrees))
             return 0.0;
-        fieldsTable.recordOutput("Desired angle PID", desiredAngleDegrees);
-        return pid.calculate(getAngleDegrees(), desiredAngleDegrees);
+        fieldsTable.recordOutput("Desired angle", desiredAngleDegrees);
+        fieldsTable.recordOutput("Desired speed", desiredSpeedDegPerSec);
+        double volt = feedforward.calculate(desiredAngleDegrees, desiredSpeedDegPerSec);
+        return usePID ? volt + pid.calculate(volt) : volt;
     }
 
     public boolean isAtAngle(double angle) {
@@ -107,6 +120,8 @@ public class Fourbar extends SubsystemBase implements Tunable {
     @Override
     public void initTunable(TunableBuilder builder) {
         builder.addChild("Forbar PID", pid);
+        builder.addChild("Forbar FeedForward", feedforward);
+        builder.addChild("Forbar Trapeziod Profile", trapezoidProfile);
         builder.addChild("Forbar RotationalSensorHelper", sensorHelper);
         builder.addDoubleProperty("Forbar minAngle", () -> minAngle, (newMinAngle) -> {
             minAngle = newMinAngle;

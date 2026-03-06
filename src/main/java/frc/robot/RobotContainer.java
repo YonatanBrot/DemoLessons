@@ -145,7 +145,7 @@ public class RobotContainer {
         isShootingHub = operatorController.b().or(DriverStation::isAutonomous);
 
         hood.setDefaultCommand(allCommands.hoodFollow(hoodAngleSupplier));
-        fourbar.setDefaultCommand(allCommands.fourbarMoveToRest());
+        // fourbar.setDefaultCommand(allCommands.fourbarMoveToRest());
 
         operatorController.leftTrigger()
                 .whileTrue(allCommands.getReadyToShoot(flywheelSpeedSupplier, hoodAngleSupplier));

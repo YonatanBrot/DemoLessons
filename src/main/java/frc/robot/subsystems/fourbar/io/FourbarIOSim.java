@@ -7,7 +7,8 @@ public class FourbarIOSim extends FourbarIO {
         super(fieldsTable);
     }
 
-    protected double getAngleRotations() {
+    @Override
+    protected double getAngleDegrees() {
         return 0;
     }
 

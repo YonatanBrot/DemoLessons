@@ -7,7 +7,7 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 
 public abstract class FourbarIO extends IOBase {
     public DoubleSupplier current = fields.addDouble("Current", this::getCurrent);
-    public DoubleSupplier angleRotations = fields.addDouble("Angle Rotations", this::getAngleRotations);
+    public DoubleSupplier angleDegrees = fields.addDouble("Angle Degrees", this::getAngleDegrees);
 
     public FourbarIO(LogFieldsTable fields) {
         super(fields);
@@ -15,7 +15,7 @@ public abstract class FourbarIO extends IOBase {
 
     protected abstract double getCurrent();
 
-    protected abstract double getAngleRotations();
+    protected abstract double getAngleDegrees();
 
     public abstract void setVolt(double volt);
 }

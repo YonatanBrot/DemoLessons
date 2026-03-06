@@ -1,5 +1,6 @@
 package frc.robot.subsystems.fourbar;
 
+import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSE_ANGLE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSING_VOLTAGE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.HOMING_VOLTAGE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.OPENING_VOLTAGE;
@@ -9,7 +10,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.utils.CommandsUtils;
 import frc.robot.utils.MathUtils;
 import team2679.atlantiskit.tunables.TunablesManager;
 import team2679.atlantiskit.tunables.extensions.TunableCommand;
@@ -72,16 +73,18 @@ public class FourbarCommands {
     }
 
     public Command open() {
-        return Commands.repeatingSequence(
-                fourbar.run(() -> fourbar.setVoltage(OPENING_VOLTAGE)).until(fourbar::isStuck),
-                fourbar.run(() -> fourbar.setVoltage(0))).unless(() -> !fourbar.isAtAngle(OPEN_ANGLE))
+        return CommandsUtils.dynamicSwitchBetweenCommands(() -> fourbar.isAtAngle(OPEN_ANGLE),
+                fourbar.run(fourbar::stop).repeatedly(),
+                fourbar.run(() -> fourbar.setVoltage(OPENING_VOLTAGE)).repeatedly())
                 .withName("open");
     }
 
     public Command close() {
-        return Commands.sequence(
-                fourbar.run(() -> fourbar.setVoltage(CLOSING_VOLTAGE)).until(fourbar::isStuck),
-                fourbar.run(() -> fourbar.setVoltage(0))).unless(() -> !fourbar.isAtAngle(CLOSING_VOLTAGE))
+        Command closeCommand = CommandsUtils.dynamicSwitchBetweenCommands(() -> fourbar.isAtAngle(CLOSE_ANGLE),
+                fourbar.run(fourbar::stop).repeatedly(),
+                fourbar.run(() -> fourbar.setVoltage(CLOSING_VOLTAGE)).repeatedly());
+        return CommandsUtils
+                .dynamicSwitchBetweenCommands(fourbar::isStuck, moveToAngle(fourbar::getAngleDegrees), closeCommand)
                 .withName("close");
     }
 

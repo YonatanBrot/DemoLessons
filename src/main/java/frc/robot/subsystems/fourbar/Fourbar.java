@@ -21,7 +21,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
     private final PIDController pid = new PIDController(KP, KI, KD);
     private final LogFieldsTable fieldsTable = new LogFieldsTable(getName());
     private final FourbarIO io = Robot.isReal() ? new FourbarIOSparkMax(fieldsTable) : new FourbarIOSim(fieldsTable);
-    private final RotationalSensorHelper sensorHelper;
+    private final RotationalSensorHelper angleDegrees;
 
     private final Debouncer isStuckDebouncer = new Debouncer(STUCK_DEBOUNCE_SEC, DebounceType.kRising);
 
@@ -29,7 +29,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
     private boolean calibrated = false;
 
     public Fourbar() {
-        sensorHelper = new RotationalSensorHelper(0);
+        angleDegrees = new RotationalSensorHelper(io.angleDegrees.getAsDouble());
         TunablesManager.add(getName(), (Tunable) this);
     }
 
@@ -39,7 +39,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
 
     @Override
     public void periodic() {
-        sensorHelper.update(io.angleRotations.getAsDouble());
+        angleDegrees.update(io.angleDegrees.getAsDouble());
         fieldsTable.recordOutput("Desired Voltage", desiredVoltage);
         fieldsTable.recordOutput("isStuck", isStuck());
         fieldsTable.recordOutput("isCalibrated", isCalibrated());
@@ -48,7 +48,7 @@ public class Fourbar extends SubsystemBase implements Tunable {
         fieldsTable.recordOutput("Current command",
                 getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
         if (!calibrated && isStuck()) {
-            sensorHelper.resetAngle(0);
+            angleDegrees.resetAngle(0);
             calibrated = true;
         }
     }
@@ -58,11 +58,11 @@ public class Fourbar extends SubsystemBase implements Tunable {
     }
 
     public double getAngleDegrees() {
-        return sensorHelper.getAngle();
+        return angleDegrees.getAngle();
     }
 
     public double getVelocity() {
-        return sensorHelper.getVelocity();
+        return angleDegrees.getVelocity();
     }
 
     public void setVoltage(double voltage) {
@@ -99,6 +99,6 @@ public class Fourbar extends SubsystemBase implements Tunable {
     @Override
     public void initTunable(TunableBuilder builder) {
         builder.addChild("Forbar PID", pid);
-        builder.addChild("Forbar RotationalSensorHelper", sensorHelper);
+        builder.addChild("Forbar RotationalSensorHelper", angleDegrees);
     }
 }

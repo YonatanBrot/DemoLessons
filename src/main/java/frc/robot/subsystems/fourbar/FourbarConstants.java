@@ -12,11 +12,13 @@ public class FourbarConstants {
 
     public static final double STUCK_VELOCITY_THRESHOLD_DEG_PER_SEC = 0.01;
 
-    public static final double ANGLE_TOLLERANCE = 0.3;
+    public static final double ANGLE_TOLLERANCE = 0.6;
 
     public static final double HOMING_VOLTAGE = -4;
     public static final double OPENING_VOLTAGE = 3;
     public static final double CLOSING_VOLTAGE = -4;
 
-    public static final double OPEN_ANGLE = 18.5;
+    public static final double OPEN_ANGLE = 0;
+    public static final double CLOSE_ANGLE = 0;
+    public static final double ANGLE_OFFSET = 0;
 }

@@ -3,7 +3,7 @@ package frc.robot.subsystems.flywheel;
 import edu.wpi.first.math.geometry.Transform3d;
 
 public class FlyWheelConstants {
-    public static final double MAX_VOLTAGE = 10;
+    public static final double MAX_VOLTAGE = 12;
     public static final double STATOR_CURRENT_LIMIT = 90;
     public static final double SUPPLY_CURRENT_LIMIT = 60;
     public static final double SUPPLY_CURRENT_LOWER_LIMIT = 40;

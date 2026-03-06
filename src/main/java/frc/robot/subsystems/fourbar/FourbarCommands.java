@@ -1,19 +1,19 @@
 package frc.robot.subsystems.fourbar;
 
+import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSING_VOLTAGE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.HOMING_VOLTAGE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.MAX_ANGLE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.MIN_ANGLE;
+import static frc.robot.subsystems.fourbar.FourbarConstants.OPENING_VOLTAGE;
+import static frc.robot.subsystems.fourbar.FourbarConstants.OPEN_ANGLE;
 
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.utils.MathUtils;
 import team2679.atlantiskit.tunables.TunablesManager;
 import team2679.atlantiskit.tunables.extensions.TunableCommand;
 import team2679.atlantiskit.valueholders.DoubleHolder;
-import team2679.atlantiskit.valueholders.ValueHolder;
 
 public class FourbarCommands {
     private Fourbar fourbar;
@@ -24,19 +24,16 @@ public class FourbarCommands {
         TunablesManager.add(fourbar.getName() + "/TunableMoveToAngle", tunableMoveToAngle().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableHoming", tunableHoming().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableBounce", tunableBounce().fullTunable());
+        TunablesManager.add(fourbar.getName() + "/Open", TunableCommand.wrap((tunablesTable) -> open()).fullTunable());
+        TunablesManager.add(fourbar.getName() + "/Close",
+                TunableCommand.wrap((tunablesTable) -> close()).fullTunable());
     }
 
     public Command moveToAngle(DoubleSupplier angle) {
-        ValueHolder<TrapezoidProfile.State> state = new ValueHolder<TrapezoidProfile.State>(null);
         return homing().andThen(fourbar.runOnce(() -> {
-            state.set(new TrapezoidProfile.State(fourbar.getAngleDegrees(), fourbar.getVelocity()));
             fourbar.resetPID();
         }).andThen(fourbar.run(() -> {
-            state.set(fourbar.calculateTrapezoidProfile(
-                    0.02, state.get(), new TrapezoidProfile.State(angle.getAsDouble(), 0)));
-            double voltage = fourbar.calculateFeedforward(
-                    state.get().position, state.get().velocity, true);
-            fourbar.setVoltage(voltage);
+            fourbar.setVoltage(fourbar.calculatePID(angle.getAsDouble()));
         }))).finallyDo(fourbar::stop).withName("Move to angle");
     }
 
@@ -69,17 +66,23 @@ public class FourbarCommands {
 
     public TunableCommand tunableMoveToAngle() {
         return TunableCommand.wrap((tunablesTable) -> {
-            DoubleHolder angle = tunablesTable.addNumber("angle", MIN_ANGLE);
+            DoubleHolder angle = tunablesTable.addNumber("angle", 0.0);
             return moveToAngle(angle::get).withName("tunableMoveToAngle");
         });
     }
 
     public Command open() {
-        return moveToAngle(MAX_ANGLE).withName("Open");
+        return Commands.repeatingSequence(
+                fourbar.run(() -> fourbar.setVoltage(OPENING_VOLTAGE)).until(fourbar::isStuck),
+                fourbar.run(() -> fourbar.setVoltage(0))).unless(() -> !fourbar.isAtAngle(OPEN_ANGLE))
+                .withName("open");
     }
 
     public Command close() {
-        return moveToAngle(MIN_ANGLE).withName("Close");
+        return Commands.sequence(
+                fourbar.run(() -> fourbar.setVoltage(CLOSING_VOLTAGE)).until(fourbar::isStuck),
+                fourbar.run(() -> fourbar.setVoltage(0))).unless(() -> !fourbar.isAtAngle(CLOSING_VOLTAGE))
+                .withName("close");
     }
 
     public Command homing() {

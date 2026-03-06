@@ -26,7 +26,6 @@ public class Fourbar extends SubsystemBase implements Tunable {
     private final Debouncer isStuckDebouncer = new Debouncer(STUCK_DEBOUNCE_SEC, DebounceType.kRising);
 
     private double desiredVoltage = 0;
-    private boolean calibrated = false;
 
     public Fourbar() {
         angleDegrees = new RotationalSensorHelper(io.angleDegrees.getAsDouble());
@@ -42,15 +41,10 @@ public class Fourbar extends SubsystemBase implements Tunable {
         angleDegrees.update(io.angleDegrees.getAsDouble());
         fieldsTable.recordOutput("Desired Voltage", desiredVoltage);
         fieldsTable.recordOutput("isStuck", isStuck());
-        fieldsTable.recordOutput("isCalibrated", isCalibrated());
         fieldsTable.recordOutput("angle", getAngleDegrees());
         fieldsTable.recordOutput("velocity", getVelocity());
         fieldsTable.recordOutput("Current command",
                 getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
-        if (!calibrated && isStuck()) {
-            angleDegrees.resetAngle(0);
-            calibrated = true;
-        }
     }
 
     public double getCurrent() {
@@ -90,10 +84,6 @@ public class Fourbar extends SubsystemBase implements Tunable {
     public boolean isStuck() {
         return isStuckDebouncer.calculate(
                 Math.abs(desiredVoltage) > 0 && Math.abs(getVelocity()) < STUCK_VELOCITY_THRESHOLD_DEG_PER_SEC);
-    }
-
-    public boolean isCalibrated() {
-        return calibrated;
     }
 
     @Override

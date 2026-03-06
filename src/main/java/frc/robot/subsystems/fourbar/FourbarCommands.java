@@ -2,7 +2,6 @@ package frc.robot.subsystems.fourbar;
 
 import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSE_ANGLE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSING_VOLTAGE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.HOMING_VOLTAGE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.OPENING_VOLTAGE;
 import static frc.robot.subsystems.fourbar.FourbarConstants.OPEN_ANGLE;
 
@@ -23,7 +22,6 @@ public class FourbarCommands {
         this.fourbar = fourbar;
         TunablesManager.add("TunableSetVoltages/FourbarSetVoltage", tunableSetVoltage().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableMoveToAngle", tunableMoveToAngle().fullTunable());
-        TunablesManager.add(fourbar.getName() + "/TunableHoming", tunableHoming().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableBounce", tunableBounce().fullTunable());
         TunablesManager.add(fourbar.getName() + "/Open", TunableCommand.wrap((tunablesTable) -> open()).fullTunable());
         TunablesManager.add(fourbar.getName() + "/Close",
@@ -31,11 +29,11 @@ public class FourbarCommands {
     }
 
     public Command moveToAngle(DoubleSupplier angle) {
-        return homing().andThen(fourbar.runOnce(() -> {
+        return fourbar.runOnce(() -> {
             fourbar.resetPID();
         }).andThen(fourbar.run(() -> {
             fourbar.setVoltage(fourbar.calculatePID(angle.getAsDouble()));
-        }))).finallyDo(fourbar::stop).withName("Move to angle");
+        })).finallyDo(fourbar::stop).withName("Move to angle");
     }
 
     public TunableCommand tunableBounce() {
@@ -86,19 +84,6 @@ public class FourbarCommands {
         return CommandsUtils
                 .dynamicSwitchBetweenCommands(fourbar::isStuck, moveToAngle(fourbar::getAngleDegrees), closeCommand)
                 .withName("close");
-    }
-
-    public Command homing() {
-        return fourbar.run(() -> fourbar.setVoltage(HOMING_VOLTAGE)).onlyWhile(() -> !fourbar.isCalibrated())
-                .finallyDo(fourbar::stop)
-                .withName("Homing");
-    }
-
-    public TunableCommand tunableHoming() {
-        return TunableCommand.wrap((tunablesTable) -> {
-            DoubleHolder voltage = tunablesTable.addNumber("voltage", HOMING_VOLTAGE);
-            return fourbar.run(() -> fourbar.setVoltage(voltage.get())).withName("tunableHoming");
-        });
     }
 
     public Command manualController(DoubleSupplier speed) {

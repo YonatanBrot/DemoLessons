@@ -1,6 +1,7 @@
 package frc.robot.subsystems.flywheel;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -10,7 +11,6 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 import team2679.atlantiskit.tunables.Tunable;
 import team2679.atlantiskit.tunables.TunableBuilder;
 import team2679.atlantiskit.tunables.TunablesManager;
-import team2679.atlantiskit.tunables.extensions.TunableSimpleMotorFeedforward;
 
 public class FlyWheel extends SubsystemBase implements Tunable {
     private final LogFieldsTable fieldsTable = new LogFieldsTable(getName());
@@ -19,9 +19,7 @@ public class FlyWheel extends SubsystemBase implements Tunable {
         ? new FlyWheelIOFalcon(fieldsTable) 
         : new FlyWheelIOSim(fieldsTable);
 
-    private TunableSimpleMotorFeedforward feedforward = Robot.isSimulation() ?
-        new TunableSimpleMotorFeedforward(Sim.SIM_KS, Sim.SIM_KV, Sim.SIM_KA) :
-        new TunableSimpleMotorFeedforward(KS, KV, KA);
+    private final PIDController pid = new PIDController(KP, KI, KD);
 
     public FlyWheel() {
         fieldsTable.update();
@@ -44,11 +42,11 @@ public class FlyWheel extends SubsystemBase implements Tunable {
         io.setVoltage(MathUtil.clamp(volt, -MAX_VOLTAGE, MAX_VOLTAGE));
     }
 
-    public double calculateFeedForward(double desiredSpeed) {
+    public double calculatePID(double desiredSpeed) {
         fieldsTable.recordOutput("Desired RPM", desiredSpeed);
         isAtSpeed(desiredSpeed);
-        double speed = feedforward.calculate(desiredSpeed);
-        return speed;
+        double voltage = pid.calculate(desiredSpeed);
+        return voltage;
     }
 
     public boolean isAtSpeed(double targetSpeedRpm){
@@ -62,8 +60,12 @@ public class FlyWheel extends SubsystemBase implements Tunable {
         io.setVoltage(0);
     }
 
+    public void resetPID() {
+        pid.reset();
+    }
+
     @Override
     public void initTunable(TunableBuilder builder) {
-        builder.addChild("Flywheel FeedForward", feedforward);
+        builder.addChild("Flywheel PID", pid);
     }
 }

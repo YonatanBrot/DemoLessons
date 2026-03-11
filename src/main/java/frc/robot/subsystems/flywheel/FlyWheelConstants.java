@@ -11,20 +11,15 @@ public class FlyWheelConstants {
 
     public static final double SPEED_TOLERANCE_RPM = 100;
 
-    public static final double KS = 0;
-    public static final double KA = 0;
-    public static final double KV = 0.002175;
+    public static final double KP = 0;
+    public static final double KI = 0;
+    public static final double KD = 0;
 
     public static final double GEAR_RATIO = 1;
 
     public static final Transform3d SHOOTER_OUTPUT_TRANSFORM = new Transform3d();
 
     public static class Sim {
-        public static final double SIM_KS = 0;
-        public static final double SIM_KA = 0;
-        public static final double SIM_KV = 0;
-        public static final double SIM_KG = 0;
-
         public static final double FLYWHEEL_JKgMetersSquared = 0;
     }
 }

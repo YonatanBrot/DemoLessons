@@ -117,7 +117,7 @@ public class RobotContainer {
                 driverController::getLeftY,
                 driverController::getLeftX,
                 driverController::getRightX,
-                swerveYawAngleSupplier,
+                () -> 180,
                 driverController.y(),
                 driverController.leftBumper().negate()::getAsBoolean,
                 driverController.rightBumper()::getAsBoolean);
@@ -152,6 +152,9 @@ public class RobotContainer {
         operatorController.rightTrigger().whileTrue(allCommands.shoot(flywheelSpeedSupplier, hoodAngleSupplier));
 
         TunablesManager.add("Tunable Shoot Command", allCommands.tunableShoot().fullTunable());
+        TunablesManager.add("Tunable Shoot With Passing", allCommands.tunableShootWithPassing().fullTunable());
+        TunablesManager.add("Reverse dex", allCommands.reverseIndexSpindex().fullTunable());
+        TunablesManager.add("FlyWheelSetVoltage", allCommands.shooterSetVolt().fullTunable());
     }
 
     public void configureAuto() {

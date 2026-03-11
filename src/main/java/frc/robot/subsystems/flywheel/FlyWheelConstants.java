@@ -11,9 +11,9 @@ public class FlyWheelConstants {
 
     public static final double SPEED_TOLERANCE_RPM = 100;
 
-    public static final double KS = 0.4;
+    public static final double KS = 0;
     public static final double KA = 0;
-    public static final double KV = 0.00193;
+    public static final double KV = 0.002175;
 
     public static final double GEAR_RATIO = 1;
 

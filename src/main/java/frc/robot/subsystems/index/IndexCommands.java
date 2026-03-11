@@ -24,6 +24,9 @@ public class IndexCommands {
         }).finallyDo(index::stop)
                 .withName("Index spin motors");
     }
+    public Command stopBoth(){
+        return spinBoth(0,0);
+    }
 
     public Command spinBoth(double indexerVolt, double spindexVolt) {
         return spinBoth(() -> indexerVolt, () -> spindexVolt);

@@ -12,6 +12,8 @@ import frc.robot.subsystems.index.Index;
 import frc.robot.subsystems.index.IndexCommands;
 import frc.robot.subsystems.roller.Roller;
 import frc.robot.subsystems.roller.RollerCommands;
+import team2679.atlantiskit.tunables.TunablesManager;
+import team2679.atlantiskit.tunables.TunablesTable;
 import team2679.atlantiskit.tunables.extensions.TunableCommand;
 import team2679.atlantiskit.valueholders.DoubleHolder;
 
@@ -72,9 +74,10 @@ public class AllCommands {
     public Command shoot(DoubleSupplier speedRPM, DoubleSupplier angle) {
         return Commands.parallel(
                 getReadyToShoot(speedRPM, angle),
-                Commands.waitUntil(
-                        () -> flyWheel.isAtSpeed(speedRPM.getAsDouble()) && hood.isAtAngle(angle.getAsDouble()))
-                        .andThen(indexCMDs.spinBoth(INDEXER_VOLTAGE, SPINDEX_VOLTAGE)))
+                // Commands.waitUntil(
+                //         () -> flyWheel.isAtSpeed(speedRPM.getAsDouble()) && hood.isAtAngle(angle.getAsDouble()))
+                //         .andThen(
+                            indexCMDs.spinBoth(INDEXER_VOLTAGE, SPINDEX_VOLTAGE))//)
                 .withName("shoot");
     }
 
@@ -86,6 +89,30 @@ public class AllCommands {
                     .withName("tunableShoot");
         });
     }
+    public TunableCommand reverseIndexSpindex(){
+        return TunableCommand.wrap((TunablesTable) -> {
+            return indexCMDs.spinBoth(-INDEXER_VOLTAGE, -SPINDEX_VOLTAGE).withName("reverse indexSpimdex");
+        });
+    }
+    public TunableCommand shooterSetVolt(){
+        return TunableCommand.wrap((tunablesTable) -> {
+            DoubleHolder volt = tunablesTable.addNumber("Voltage", 0.0);
+            return flyWheelCMDs.setPureFuckingVoltageToFlywheel(volt.get());
+        });
+    }
+    public TunableCommand tunableShootWithPassing() {
+        return TunableCommand.wrap((tunablesTable) -> {
+            DoubleHolder speedHolder = tunablesTable.addNumber("speedRPM", 0.0);
+            DoubleHolder hoodAngleHolder = tunablesTable.addNumber("angle", 0.0);
+            DoubleHolder indexVoltage = tunablesTable.addNumber("indexVoltage", INDEXER_VOLTAGE);
+            DoubleHolder spindexVoltage = tunablesTable.addNumber("spindexVoltage", SPINDEX_VOLTAGE);
+            return getReadyToShoot(speedHolder::get, hoodAngleHolder::get).alongWith(indexCMDs.spinBoth(//() -> flyWheel.isAtSpeed(speedHolder.get()) ? indexVoltage.get() : 0, 
+            indexVoltage::get,
+            spindexVoltage::get))
+                    .withName("tunableShoot");
+        });
+    }
+
 
     public Command hoodFollow(DoubleSupplier angle) {
         return hoodCMDs.moveToAngle(angle);

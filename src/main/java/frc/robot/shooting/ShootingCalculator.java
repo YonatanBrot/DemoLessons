@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import frc.robot.utils.LinearInterpolation;
 import team2679.atlantiskit.logfields.LogFieldsTable;
 
+import static frc.robot.shooting.ShootingMeasurments.ROBOT_TO_MEASURMENT_TRANSFORM;
+
 public class ShootingCalculator {
     private static final double G = -9.8;
 
@@ -45,7 +47,7 @@ public class ShootingCalculator {
     }
 
     public void update(Pose2d robotPose, boolean isRedAlliance) {
-        double distanceFromTarget = new Pose3d(robotPose).getTranslation().getDistance(targetPose.getTranslation());
+        double distanceFromTarget = new Pose3d(robotPose).transformBy(ROBOT_TO_MEASURMENT_TRANSFORM).getTranslation().getDistance(targetPose.getTranslation());
         robotYawDegreesCCW = Math.toDegrees(Math
                 .atan((targetPose.getY() - robotPose.getY()) / (targetPose.getX() - robotPose.getX())));
         if (isRedAlliance) {

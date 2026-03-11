@@ -12,8 +12,6 @@ import frc.robot.subsystems.index.Index;
 import frc.robot.subsystems.index.IndexCommands;
 import frc.robot.subsystems.roller.Roller;
 import frc.robot.subsystems.roller.RollerCommands;
-import team2679.atlantiskit.tunables.TunablesManager;
-import team2679.atlantiskit.tunables.TunablesTable;
 import team2679.atlantiskit.tunables.extensions.TunableCommand;
 import team2679.atlantiskit.valueholders.DoubleHolder;
 
@@ -89,17 +87,7 @@ public class AllCommands {
                     .withName("tunableShoot");
         });
     }
-    public TunableCommand reverseIndexSpindex(){
-        return TunableCommand.wrap((TunablesTable) -> {
-            return indexCMDs.spinBoth(-INDEXER_VOLTAGE, -SPINDEX_VOLTAGE).withName("reverse indexSpimdex");
-        });
-    }
-    public TunableCommand shooterSetVolt(){
-        return TunableCommand.wrap((tunablesTable) -> {
-            DoubleHolder volt = tunablesTable.addNumber("Voltage", 0.0);
-            return flyWheelCMDs.setPureFuckingVoltageToFlywheel(volt.get());
-        });
-    }
+
     public TunableCommand tunableShootWithPassing() {
         return TunableCommand.wrap((tunablesTable) -> {
             DoubleHolder speedHolder = tunablesTable.addNumber("speedRPM", 0.0);
@@ -152,5 +140,4 @@ public class AllCommands {
                 indexCMDs.manualController(indexSpeed))
                 .withName("manualController");
     }
-
 }

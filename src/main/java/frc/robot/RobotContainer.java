@@ -153,8 +153,6 @@ public class RobotContainer {
 
         TunablesManager.add("Tunable Shoot Command", allCommands.tunableShoot().fullTunable());
         TunablesManager.add("Tunable Shoot With Passing", allCommands.tunableShootWithPassing().fullTunable());
-        TunablesManager.add("Reverse dex", allCommands.reverseIndexSpindex().fullTunable());
-        TunablesManager.add("FlyWheelSetVoltage", allCommands.shooterSetVolt().fullTunable());
     }
 
     public void configureAuto() {

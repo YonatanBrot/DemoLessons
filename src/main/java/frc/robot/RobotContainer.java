@@ -7,6 +7,7 @@ import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -107,6 +108,7 @@ public class RobotContainer {
             }
         });
         new Trigger(DriverStation::isDisabled).whileTrue(swerveCommands.stop().alongWith(allCommands.stopAll()));
+        // SignalLogger.setPath("/media/sda1/"); // Cofigure pheonixLib logging path
         configureDrive();
         configureOperator();
         configureAuto();

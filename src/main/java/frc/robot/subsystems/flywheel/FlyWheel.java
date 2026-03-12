@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.flywheel.io.*;
+import frc.robot.utils.TunableSimpleMotorFeedforward;
+
 import static frc.robot.subsystems.flywheel.FlyWheelConstants.*;
 import team2679.atlantiskit.logfields.LogFieldsTable;
 import team2679.atlantiskit.tunables.Tunable;
@@ -21,13 +23,15 @@ public class FlyWheel extends SubsystemBase implements Tunable {
 
     private final PIDController pid = new PIDController(KP, KI, KD);
 
+    private final TunableSimpleMotorFeedforward feedforward = new TunableSimpleMotorFeedforward(KS, KV, KA);
+
     public FlyWheel() {
         fieldsTable.update();
         TunablesManager.add(getName(), (Tunable) this);
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         fieldsTable.recordOutput("current command", getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
         fieldsTable.recordOutput("currents diff", Math.abs(io.motor1Current.getAsDouble() - io.motor2Current.getAsDouble()));
         SmartDashboard.putNumber("Motors RPM", getMotorsRPM());
@@ -41,11 +45,13 @@ public class FlyWheel extends SubsystemBase implements Tunable {
         fieldsTable.recordOutput("Desired voltage", volt);
         io.setVoltage(MathUtil.clamp(volt, -MAX_VOLTAGE, MAX_VOLTAGE));
     }
-
-    public double calculatePID(double desiredSpeed) {
+    public double calculateVoltage(double desiredSpeed, boolean usePID) {
         fieldsTable.recordOutput("Desired RPM", desiredSpeed);
         isAtSpeed(desiredSpeed);
-        double voltage = pid.calculate(desiredSpeed);
+        double voltage = feedforward.calculate(desiredSpeed);
+        if (usePID) {
+            voltage += pid.calculate(getMotorsRPM(), desiredSpeed);
+        }
         return voltage;
     }
 
@@ -67,5 +73,6 @@ public class FlyWheel extends SubsystemBase implements Tunable {
     @Override
     public void initTunable(TunableBuilder builder) {
         builder.addChild("Flywheel PID", pid);
+        builder.addChild("Flywheel FeedForward", feedforward);
     }
 }

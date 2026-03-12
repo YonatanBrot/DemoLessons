@@ -9,11 +9,15 @@ public class FlyWheelConstants {
     public static final double SUPPLY_CURRENT_LOWER_LIMIT = 40;
     public static final double SUPPLY_CURRENT_LOWER_TIME = 2;
 
-    public static final double SPEED_TOLERANCE_RPM = 100;
+    public static final double SPEED_TOLERANCE_RPM = 120;
 
-    public static final double KP = 0;
+    public static final double KP = 0.0028107;
     public static final double KI = 0;
     public static final double KD = 0;
+
+    public static final double KS = 0.2654;
+    public static final double KV = 0.0018705;
+    public static final double KA = 0.0001328;
 
     public static final double GEAR_RATIO = 1;
 

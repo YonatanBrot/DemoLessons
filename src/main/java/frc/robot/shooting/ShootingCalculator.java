@@ -19,8 +19,6 @@ public class ShootingCalculator {
     private final LinearInterpolation hoodAngleDegreesLinearInterpolation;
     private final LinearInterpolation flyWheelRPMLinearInterpolation;
 
-    private double robotYawDegreesCCW;
-
     private double hoodAngleDegrees;
     private double flyWheelRPM;
 
@@ -46,24 +44,25 @@ public class ShootingCalculator {
         this.targetPose = targetPose;
     }
 
-    public void update(Pose2d robotPose, boolean isRedAlliance) {
+    public void update(Pose2d robotPose) {
         double distanceFromTarget = new Pose3d(robotPose).transformBy(ROBOT_TO_MEASURMENT_TRANSFORM).getTranslation().getDistance(targetPose.getTranslation());
-        robotYawDegreesCCW = Math.toDegrees(Math
-                .atan((targetPose.getY() - robotPose.getY()) / (targetPose.getX() - robotPose.getX())));
-        if (isRedAlliance) {
-            robotYawDegreesCCW += 180;
-        }
+        update_with_distance(distanceFromTarget);
+    }
 
+    public void update_with_distance(double distanceFromTarget) {
         hoodAngleDegrees = hoodAngleDegreesLinearInterpolation.calculate(distanceFromTarget);
         flyWheelRPM = flyWheelRPMLinearInterpolation.calculate(distanceFromTarget);
 
         flightTimeEstimateSeconds = solveKinematicsTime(targetPose.getZ(), flyWheelRPM, hoodAngleDegrees);
 
         fieldsTable.recordOutput("distanceFromTarget", distanceFromTarget);
-        fieldsTable.recordOutput("robotYawDegreesCCW", robotYawDegreesCCW);
         fieldsTable.recordOutput("hoodAngleDegrees", hoodAngleDegrees);
         fieldsTable.recordOutput("flyWheelRPM", flyWheelRPM);
         fieldsTable.recordOutput("flightTimeEstimateSeconds", flightTimeEstimateSeconds);
+    }
+
+    public void setTargetPose(Pose3d targetPose) {
+        this.targetPose = targetPose;
     }
 
     public double getHoodAngleDegrees() {
@@ -72,10 +71,6 @@ public class ShootingCalculator {
 
     public double getFlyWheelRPM() {
         return flyWheelRPM;
-    }
-
-    public double getRobotYawDegreesCCW() {
-        return robotYawDegreesCCW;
     }
 
     public double getFlightTimeEstimateSeconds() {

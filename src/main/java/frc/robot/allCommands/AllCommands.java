@@ -1,5 +1,6 @@
 package frc.robot.allCommands;
 
+import frc.robot.shooting.ShootingCalculator;
 // import frc.robot.subsystems.elevator.Elevator;
 // import frc.robot.subsystems.elevator.ElevatorCommands;
 import frc.robot.subsystems.flywheel.FlyWheel;
@@ -94,13 +95,23 @@ public class AllCommands {
             DoubleHolder hoodAngleHolder = tunablesTable.addNumber("angle", 0.0);
             DoubleHolder indexVoltage = tunablesTable.addNumber("indexVoltage", INDEXER_VOLTAGE);
             DoubleHolder spindexVoltage = tunablesTable.addNumber("spindexVoltage", SPINDEX_VOLTAGE);
-            return getReadyToShoot(speedHolder::get, hoodAngleHolder::get).alongWith(indexCMDs.spinBoth(//() -> flyWheel.isAtSpeed(speedHolder.get()) ? indexVoltage.get() : 0, 
-            indexVoltage::get,
-            spindexVoltage::get))
+            return getReadyToShoot(speedHolder::get, hoodAngleHolder::get).alongWith(indexCMDs.spinBoth(indexVoltage::get, spindexVoltage::get))
                     .withName("tunableShoot");
         });
     }
 
+    public TunableCommand tunableShootWithDistance(ShootingCalculator shootingCalculator) {
+        return TunableCommand.wrap((tunablesTable) -> {
+            DoubleHolder indexVoltage = tunablesTable.addNumber("indexVoltage", INDEXER_VOLTAGE);
+            DoubleHolder spindexVoltage = tunablesTable.addNumber("spindexVoltage", SPINDEX_VOLTAGE);
+            DoubleHolder distance = tunablesTable.addNumber("distanceFromTargetMeters", 0.0);
+            return Commands.parallel(
+                Commands.run(() -> shootingCalculator.update_with_distance(distance.get())),
+                getReadyToShoot(shootingCalculator::getFlyWheelRPM, shootingCalculator::getHoodAngleDegrees),
+                indexCMDs.spinBoth(indexVoltage::get, spindexVoltage::get)
+            ).withName("tunableShootWithDistance");
+        });
+    }
 
     public Command hoodFollow(DoubleSupplier angle) {
         return hoodCMDs.moveToAngle(angle);

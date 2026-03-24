@@ -1,12 +1,22 @@
 package frc.robot.subsystems.fourbar;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.fourbar.FourbarConstants.*;
+import static frc.robot.subsystems.hood.HoodConstants.MAX_ANGLE_DEGREES;
+import static frc.robot.subsystems.hood.HoodConstants.MIN_ANGLE_DEGREES;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 import frc.robot.subsystems.fourbar.io.FourbarIO;
 import frc.robot.subsystems.fourbar.io.FourbarIOSim;
@@ -16,19 +26,33 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 import team2679.atlantiskit.tunables.Tunable;
 import team2679.atlantiskit.tunables.TunableBuilder;
 import team2679.atlantiskit.tunables.TunablesManager;
+import team2679.atlantiskit.tunables.extensions.TunableArmFeedforward;
+import team2679.atlantiskit.tunables.extensions.TunableTrapezoidProfile;
 
 public class Fourbar extends SubsystemBase implements Tunable {
     private final PIDController pid = new PIDController(KP, KI, KD);
+    private final TunableArmFeedforward feedforward = new TunableArmFeedforward(KS, KG, KV);
+    private final TunableTrapezoidProfile trapezoidProfile = new TunableTrapezoidProfile(
+            new TrapezoidProfile.Constraints(
+                    MAX_VELOCITY_DEG_PER_SEC, MAX_ACCELERATION_DEG_PER_SEC));
     private final LogFieldsTable fieldsTable = new LogFieldsTable(getName());
     private final FourbarIO io = Robot.isReal() ? new FourbarIOSparkMax(fieldsTable) : new FourbarIOSim(fieldsTable);
-    private final RotationalSensorHelper angleDegrees;
+    private final RotationalSensorHelper angleDegrees = new RotationalSensorHelper(io.angleDegrees.getAsDouble());
 
     private final Debouncer isStuckDebouncer = new Debouncer(STUCK_DEBOUNCE_SEC, DebounceType.kRising);
 
     private double desiredVoltage = 0;
 
+    public final SysIdRoutine sysIdRoutine = new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism((volt) -> this.setVoltage(volt.in(Volts), false), log -> {
+                log.motor("fourbar-motor")
+                        .voltage(Voltage.ofBaseUnits(desiredVoltage, Volts))
+                        .angularPosition(Angle.ofBaseUnits(getAngleDegrees(), Degrees))
+                        .angularVelocity(AngularVelocity.ofBaseUnits(getVelocity(), DegreesPerSecond));
+            }, this));
+
     public Fourbar() {
-        angleDegrees = new RotationalSensorHelper(io.angleDegrees.getAsDouble());
         TunablesManager.add(getName(), (Tunable) this);
     }
 
@@ -59,22 +83,35 @@ public class Fourbar extends SubsystemBase implements Tunable {
         return angleDegrees.getVelocity();
     }
 
-    public void setVoltage(double voltage) {
+    public void setVoltage(double voltage, boolean softwareStop) {
+        if (softwareStop &&
+            ((getAngleDegrees() > MAX_ANGLE_DEGREES && voltage > 0) ||
+            (getAngleDegrees() < MIN_ANGLE_DEGREES && voltage < 0))) {
+            voltage = 0;
+        }
         voltage = MathUtil.clamp(voltage, -MAX_VOLTAGE, MAX_VOLTAGE);
         desiredVoltage = voltage;
         io.setVolt(voltage);
     }
 
+    public double calculateFeedForward(double desiredAngleDegrees, double desiredSpeed, boolean usePID) {
+        fieldsTable.recordOutput("desired angle", desiredAngleDegrees);
+        fieldsTable.recordOutput("desired speed", desiredSpeed);
+        double speed = feedforward.calculate(Math.toRadians(desiredAngleDegrees), desiredSpeed);
+        if (usePID && !isAtAngle(desiredAngleDegrees)) {
+            speed += pid.calculate(getAngleDegrees(), desiredAngleDegrees);
+        }
+        return speed;
+    }
+
+    public TrapezoidProfile.State calculateTrapezoidProfile(double time, TrapezoidProfile.State initialState,
+            TrapezoidProfile.State goalState) {
+        return trapezoidProfile.calculate(time, initialState, goalState);
+    }
+
     public void stop() {
         desiredVoltage = 0;
         io.setVolt(0);
-    }
-
-    public double calculatePID(double desiredAngleDegrees) {
-        if (isAtAngle(desiredAngleDegrees))
-            return 0.0;
-        fieldsTable.recordOutput("Desired angle", desiredAngleDegrees);
-        return pid.calculate(desiredAngleDegrees);
     }
 
     public boolean isAtAngle(double angle) {
@@ -89,6 +126,8 @@ public class Fourbar extends SubsystemBase implements Tunable {
     @Override
     public void initTunable(TunableBuilder builder) {
         builder.addChild("Forbar PID", pid);
+        builder.addChild("Forbar FeedForward", feedforward);
+        builder.addChild("Forbar TrapeziodProfile", trapezoidProfile);
         builder.addChild("Forbar RotationalSensorHelper", angleDegrees);
     }
 }

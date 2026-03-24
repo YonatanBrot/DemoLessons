@@ -31,8 +31,9 @@ public final class RobotMap {
   }
 
   public static final class CANBUS {
-    public static final int SPINDEX_ID = 40;
+    public static final int SPINDEX_LEADER_ID = 40;
     public static final int INDEXER_ID = 41;
+    public static final int SPINDEX_FOLLOWER_ID = 42;
 
     public static final int ELEVATOR_ID = 0;
 
@@ -46,7 +47,6 @@ public final class RobotMap {
 
   public static final class DIO {
     public static final int FOURBAR_ENCODER_ID = 0;
-    public final static int HOOD_ENCODER_ID = 0;
     public static final int ELEVATOR_ENCODER_ID = 0;
   }
 }

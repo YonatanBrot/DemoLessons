@@ -15,22 +15,28 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 import team2679.atlantiskit.periodicalerts.PeriodicAlertsGroup;
 
 public class IndexIOSparkMax extends IndexIO {
-    private SparkMax spindexMotor = new SparkMax(CANBUS.SPINDEX_ID, MotorType.kBrushless);
+    private SparkMax spindexLeaderMotor = new SparkMax(CANBUS.SPINDEX_LEADER_ID, MotorType.kBrushless);
+    private SparkMax spindexFollowerMotor = new SparkMax(CANBUS.SPINDEX_FOLLOWER_ID, MotorType.kBrushless);
     private SparkMax indexerMotor = new SparkMax(CANBUS.INDEXER_ID, MotorType.kBrushless);
 
     public IndexIOSparkMax(LogFieldsTable fields){
         super(fields);
 
-        PeriodicAlertsGroup alerts = new PeriodicAlertsGroup("Index");
+        PeriodicAlertsGroup alerts = PeriodicAlertsGroup.defaultInstance.getSubGroup("Index");
         
         SparkMaxConfig spindexMotorConfig = new SparkMaxConfig();
-        spindexMotorConfig.smartCurrentLimit(IndexConstants.SPINDEX_CURRENT_LIMIT);
+        spindexMotorConfig.smartCurrentLimit(IndexConstants.SPINDEX_LEARDER_CURRENT_LIMIT);
         spindexMotorConfig.idleMode(IdleMode.kCoast);
         spindexMotorConfig.inverted(true);
-        REVLibError spindexConfigError = spindexMotor.configure(spindexMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        REVLibError spindexLeaderConfigError = spindexLeaderMotor.configure(spindexMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         AlertsFactory.revMotor(alerts, 
-            () -> spindexConfigError, spindexMotor::getWarnings, spindexMotor::getFaults, "Spinex Motor");
-
+            () -> spindexLeaderConfigError, spindexLeaderMotor::getWarnings, spindexLeaderMotor::getFaults, "Spinex Leader Motor");
+        spindexMotorConfig.follow(CANBUS.SPINDEX_LEADER_ID);
+        spindexMotorConfig.smartCurrentLimit(IndexConstants.SPINDEX_FOLLOWER_CURRENT_LIMIT);
+        REVLibError spindexFollowerConfigError = spindexFollowerMotor.configure(spindexMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        AlertsFactory.revMotor(alerts, 
+            () -> spindexFollowerConfigError, spindexFollowerMotor::getWarnings, spindexFollowerMotor::getFaults, "Spinex Follower Motor");
+        
         SparkMaxConfig indexerMotorConfig = new SparkMaxConfig();
         indexerMotorConfig.smartCurrentLimit(IndexConstants.INDEXER_CURRENT_LIMIT);
         indexerMotorConfig.idleMode(IdleMode.kCoast);
@@ -40,15 +46,19 @@ public class IndexIOSparkMax extends IndexIO {
     }
 
     public void setSpindexVolt(double volt){
-        spindexMotor.setVoltage(volt);
+        spindexLeaderMotor.setVoltage(volt);
     }
 
     public void setIndexerVolt(double volt){
         indexerMotor.setVoltage(volt);
     }
     
-    protected double getSpindexCurrent(){
-        return spindexMotor.getOutputCurrent();
+    protected double getSpindexLeaderCurrent(){
+        return spindexLeaderMotor.getOutputCurrent();
+    }
+
+    protected double getSpindexFollowerCurrent(){
+        return spindexFollowerMotor.getOutputCurrent();
     }
     
     protected double getIndexerCurrent(){

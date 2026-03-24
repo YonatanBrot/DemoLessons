@@ -1,19 +1,17 @@
 package frc.robot.subsystems.fourbar;
 
-import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSE_ANGLE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.CLOSING_VOLTAGE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.OPENING_VOLTAGE;
-import static frc.robot.subsystems.fourbar.FourbarConstants.OPEN_ANGLE;
-
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.utils.CommandsUtils;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.utils.MathUtils;
 import team2679.atlantiskit.tunables.TunablesManager;
 import team2679.atlantiskit.tunables.extensions.TunableCommand;
 import team2679.atlantiskit.valueholders.DoubleHolder;
+import team2679.atlantiskit.valueholders.ValueHolder;
 
 public class FourbarCommands {
     private Fourbar fourbar;
@@ -23,17 +21,43 @@ public class FourbarCommands {
         TunablesManager.add("TunableSetVoltages/FourbarSetVoltage", tunableSetVoltage().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableMoveToAngle", tunableMoveToAngle().fullTunable());
         TunablesManager.add(fourbar.getName() + "/TunableBounce", tunableBounce().fullTunable());
-        TunablesManager.add(fourbar.getName() + "/Open", TunableCommand.wrap((tunablesTable) -> open()).fullTunable());
-        TunablesManager.add(fourbar.getName() + "/Close",
-                TunableCommand.wrap((tunablesTable) -> close()).fullTunable());
+        TunablesManager.add(fourbar.getName() + "/SysId", sysId());
     }
 
     public Command moveToAngle(DoubleSupplier angle) {
+        ValueHolder<TrapezoidProfile.State> referenceState = new ValueHolder<TrapezoidProfile.State>(null);
         return fourbar.runOnce(() -> {
             fourbar.resetPID();
+            referenceState.set(new TrapezoidProfile.State(fourbar.getAngleDegrees(), fourbar.getVelocity()));
         }).andThen(fourbar.run(() -> {
-            fourbar.setVoltage(fourbar.calculatePID(angle.getAsDouble()));
+            referenceState.set(fourbar.calculateTrapezoidProfile(0.02, referenceState.get(),
+                    new TrapezoidProfile.State(angle.getAsDouble(), 0)));
+            double voltage = fourbar.calculateFeedForward(referenceState.get().position, referenceState.get().velocity,
+                    true);
+            fourbar.setVoltage(voltage, true);
         })).finallyDo(fourbar::stop).withName("Move to angle");
+    }
+
+    public TunableCommand tunableMoveToAngle() {
+        return TunableCommand.wrap((tunablesTable) -> {
+            DoubleHolder angle = tunablesTable.addNumber("angle", 0.0);
+            return moveToAngle(angle::get).withName("tunableMoveToAngle");
+        });
+    }
+
+    public Command moveToAngle(double angle) {
+        return moveToAngle(() -> angle);
+    }
+
+    public Command bounce(DoubleSupplier minAngle, DoubleSupplier maxAngle) {
+        return moveToAngle(
+                () -> MathUtils.cosineWave(minAngle.getAsDouble(), maxAngle.getAsDouble(),
+                        Timer.getFPGATimestamp() * 3))
+                .withName("bounce");
+    }
+
+    public Command bounce(double minAngle, double maxAngle) {
+        return bounce(() -> minAngle, () -> maxAngle);
     }
 
     public TunableCommand tunableBounce() {
@@ -48,54 +72,24 @@ public class FourbarCommands {
         });
     }
 
-    public Command bounce(DoubleSupplier minAngle, DoubleSupplier maxAngle) {
-        return moveToAngle(
-                () -> MathUtils.cosineWave(minAngle.getAsDouble(), maxAngle.getAsDouble(),
-                        Timer.getFPGATimestamp() * 3))
-                .withName("bounce");
-    }
-
-    public Command bounce(double minAngle, double maxAngle) {
-        return bounce(() -> minAngle, () -> maxAngle);
-    }
-
-    public Command moveToAngle(double angle) {
-        return moveToAngle(() -> angle);
-    }
-
-    public TunableCommand tunableMoveToAngle() {
-        return TunableCommand.wrap((tunablesTable) -> {
-            DoubleHolder angle = tunablesTable.addNumber("angle", 0.0);
-            return moveToAngle(angle::get).withName("tunableMoveToAngle");
-        });
-    }
-
-    public Command open() {
-        return CommandsUtils.dynamicSwitchBetweenCommands(() -> fourbar.isAtAngle(OPEN_ANGLE),
-                fourbar.run(fourbar::stop).repeatedly(),
-                fourbar.run(() -> fourbar.setVoltage(OPENING_VOLTAGE)).repeatedly())
-                .withName("open");
-    }
-
-    public Command close() {
-        Command closeCommand = CommandsUtils.dynamicSwitchBetweenCommands(() -> fourbar.isAtAngle(CLOSE_ANGLE),
-                fourbar.run(fourbar::stop).repeatedly(),
-                fourbar.run(() -> fourbar.setVoltage(CLOSING_VOLTAGE)).repeatedly());
-        return CommandsUtils
-                .dynamicSwitchBetweenCommands(fourbar::isStuck, moveToAngle(fourbar::getAngleDegrees), closeCommand)
-                .withName("close");
+    public Command sysId() {
+        return Commands.sequence(
+                fourbar.sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+                fourbar.sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+                fourbar.sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward),
+                fourbar.sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse)).withName("sysId");
     }
 
     public Command manualController(DoubleSupplier speed) {
         return fourbar.run(() -> {
-            fourbar.setVoltage(speed.getAsDouble() * FourbarConstants.MAX_VOLTAGE);
+            fourbar.setVoltage(speed.getAsDouble() * FourbarConstants.MAX_VOLTAGE, false);
         }).withName("Fourbar manual controller");
     }
 
     private TunableCommand tunableSetVoltage() {
         return TunableCommand.wrap((tunablesTable) -> {
             DoubleHolder voltage = tunablesTable.addNumber("voltage", 0.0);
-            return fourbar.run(() -> fourbar.setVoltage(voltage.get())).finallyDo(fourbar::stop)
+            return fourbar.run(() -> fourbar.setVoltage(voltage.get(), true)).finallyDo(fourbar::stop)
                     .withName("Tunable fourbar set voltage");
         });
     }

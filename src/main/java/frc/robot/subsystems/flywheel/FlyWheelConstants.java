@@ -24,6 +24,6 @@ public class FlyWheelConstants {
     public static final Transform3d SHOOTER_OUTPUT_TRANSFORM = new Transform3d();
 
     public static class Sim {
-        public static final double FLYWHEEL_JKgMetersSquared = 0;
+        public static final double FLYWHEEL_JKgMetersSquared = 1;  //0 throws compile error, changed to one
     }
 }

@@ -26,7 +26,8 @@ public class HoodCommands {
             hood.resetPID();
         }).andThen(homing()).andThen(hood.run(() -> {
             hood.setVoltage(hood.calculatePID(angle.getAsDouble()));
-        })).withName("Hood move to angle");
+        })).withName("Hood move to angle")
+        .finallyDo(hood::stop);
     }
 
     public Command moveToAngle(double angle) {

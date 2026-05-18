@@ -135,19 +135,26 @@ private final NaturalXboxController driverController = new NaturalXboxController
             swerve.resetGyroYawZero();
             PoseEstimator.getInstance().resetYawZero();
         }));
+
+        driverController.povUp().whileTrue(allCommands.intake());
+        driverController.povDown().whileTrue(allCommands.fixedShoot());
+        driverController.povRight().whileTrue(allCommands.spindexBack());
+
+        driverController.povLeft().whileTrue(allCommands.closeIntake());
     }
 
     public void configureOperator() {
-        operatorController.a().whileTrue(allCommands.intake());
+        
 
-        isShootingHub = operatorController.b().or(DriverStation::isAutonomous);
 
-        hood.setDefaultCommand(allCommands.hoodFollow(hoodAngleSupplier));
+        //isShootingHub = operatorController.b().or(DriverStation::isAutonomous);
+
+        //hood.setDefaultCommand(allCommands.hoodFollow(hoodAngleSupplier));
         // fourbar.setDefaultCommand(allCommands.fourbarMoveToRest());
 
-        operatorController.leftTrigger()
-                .whileTrue(allCommands.getReadyToShoot(flywheelSpeedSupplier, hoodAngleSupplier));
-        operatorController.rightTrigger().whileTrue(allCommands.shoot(flywheelSpeedSupplier, hoodAngleSupplier));
+        // operatorController.leftTrigger()
+        //         .whileTrue(allCommands.getReadyToShoot(flywheelSpeedSupplier, hoodAngleSupplier));
+        // operatorController.rightTrigger().whileTrue(allCommands.shoot(flywheelSpeedSupplier, hoodAngleSupplier));
 
         TunablesManager.add("Tunable Shoot Command", allCommands.tunableShoot().fullTunable());
         TunablesManager.add("Tunable Shoot With Passing", allCommands.tunableShootWithPassing().fullTunable());

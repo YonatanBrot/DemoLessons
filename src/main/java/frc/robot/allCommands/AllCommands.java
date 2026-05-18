@@ -20,6 +20,7 @@ import static frc.robot.allCommands.AllCommandsConstants.*;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
@@ -52,16 +53,39 @@ public class AllCommands {
         hoodCMDs = new HoodCommands(this.hood);
         indexCMDs = new IndexCommands(this.index);
         // elevatorCMDs = new ElevatorCommands(this.elevator);
+        //fourbar.setDefaultCommand(fourbarCMDs.moveToAngle(FOURBAR_MID_ANGLE));
     }
 
     public Command intake() {
-        return Commands.parallel(
-                fourbarCMDs.bounce(FOURBAR_INTAKE_BOUNCE_MIN_ANGLE, FOURBAR_INTAKE_BOUNCE_MAX_ANGLE),
-                rollerCMDs.spin(ROLLER_VOLTAGE)).withName("intake");
+        // return Commands.parallel(
+        //         fourbarCMDs.bounce(FOURBAR_INTAKE_BOUNCE_MIN_ANGLE, FOURBAR_INTAKE_BOUNCE_MAX_ANGLE),
+        //         rollerCMDs.spin(ROLLER_VOLTAGE)).withName("intake");
+        return rollerCMDs.spin(12);
     }
 
     public Command stopIntake() {
-        return fourbar.run(fourbar::stop).alongWith(roller.run(roller::stop));
+        // return Commands.waitUntil(() -> { 
+        //     return fourbar.isAtAngle(FOURBAR_MID_ANGLE);})
+        // .andThen(roller.run(roller::stop));
+        return roller.run(roller::stop);
+    }
+
+    public Command closeIntake() {
+        //return fourbarCMDs.moveToAngle(FOURBAR_CLOSE_ANGLE);
+        return rollerCMDs.spin(-12);
+    }
+
+    public Command fixedShoot() {
+        return Commands.parallel(
+            flyWheelCMDs.reachSpeed(() -> FIXED_FLYWHEEL_SPEED),
+            hoodCMDs.moveToAngle(FIXED_HOOD_ANGLE),
+            Commands.repeatingSequence(
+                Commands.waitUntil(() -> flyWheel.isAtSpeed(FIXED_FLYWHEEL_SPEED)), 
+                indexCMDs.spinBoth(INDEXER_VOLTAGE, SPINDEX_VOLTAGE)));
+    }
+
+    public Command spindexBack() {
+        return indexCMDs.spinBoth(0, -SPINDEX_VOLTAGE);
     }
 
     public Command getReadyToShoot(DoubleSupplier speedRPM, DoubleSupplier angle) {
@@ -124,10 +148,6 @@ public class AllCommands {
     // public Command unclimb() {
     //     return elevatorCMDs.moveToHeight(ELEVATOR_UNCLIMB_HEIGHT_METERS).withName("unclimb");
     // }
-
-    public Command fourbarMoveToRest() {
-        return fourbarCMDs.moveToAngle(() -> FOURBAR_MID_ANGLE).withName("fourbarMoveToRest");
-    }
 
     public Command stopAll() {
         return Commands.run(() -> {

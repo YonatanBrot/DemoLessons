@@ -56,22 +56,15 @@ public class AllCommands {
     }
 
     public Command intake() {
-        // return Commands.parallel(
-        //         fourbarCMDs.bounce(FOURBAR_INTAKE_BOUNCE_MIN_ANGLE, FOURBAR_INTAKE_BOUNCE_MAX_ANGLE),
-        //         rollerCMDs.spin(ROLLER_VOLTAGE)).withName("intake");
-        return rollerCMDs.spin(12);
+        return Commands.parallel(
+            fourbarCMDs.open(),
+            rollerCMDs.spin(12)
+        )
+        .withName("Intake");
     }
 
     public Command stopIntake() {
-        // return Commands.waitUntil(() -> { 
-        //     return fourbar.isAtAngle(FOURBAR_MID_ANGLE);})
-        // .andThen(roller.run(roller::stop));
-        return roller.run(roller::stop);
-    }
-
-    public Command closeIntake() {
-        //return fourbarCMDs.moveToAngle(FOURBAR_CLOSE_ANGLE);
-        return rollerCMDs.spin(-12);
+        return fourbarCMDs.close();
     }
 
     public Command fixedShoot() {

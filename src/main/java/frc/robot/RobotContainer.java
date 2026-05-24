@@ -115,14 +115,14 @@ private final NaturalXboxController driverController = new NaturalXboxController
                 driverController::getLeftX,
                 driverController::getRightX,
                 () -> 180,
-                driverController.y(),
+                driverController.povUp(),
                 driverController.leftBumper().negate()::getAsBoolean,
                 driverController.rightBumper()::getAsBoolean);
 
         swerve.setDefaultCommand(driveCommand);
         TunablesManager.add("Swerve/drive command", driveCommand.fullTunable());
 
-        driverController.x().onTrue(swerveCommands.xWheelLock());
+        driverController.povLeft().onTrue(swerveCommands.xWheelLock());
 
         TunablesManager.add("Swerve/modules control mode",
                 swerveCommands.controlModules(
@@ -130,16 +130,16 @@ private final NaturalXboxController driverController = new NaturalXboxController
                         driverController::getLeftY,
                         driverController::getRightY).fullTunable());
 
-        driverController.a().onTrue(new InstantCommand(() -> {
+        driverController.povRight().onTrue(new InstantCommand(() -> {
             swerve.resetGyroYawZero();
             PoseEstimator.getInstance().resetYawZero();
         }));
 
-        driverController.povUp().whileTrue(allCommands.intake());
-        driverController.povDown().whileTrue(allCommands.fixedShoot());
-        driverController.povRight().whileTrue(allCommands.spindexBack());
+        driverController.b().whileTrue(allCommands.intake());
+        driverController.a().whileTrue(allCommands.fixedShoot());
+        driverController.x().whileTrue(allCommands.spindexBack());
 
-        driverController.povLeft().whileTrue(allCommands.closeIntake());
+        driverController.y().whileTrue(allCommands.stopIntake());
     }
 
     public void configureOperator() {

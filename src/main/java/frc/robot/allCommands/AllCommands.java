@@ -129,9 +129,9 @@ public class AllCommands {
         });
     }
 
-    public Command hoodFollow(DoubleSupplier angle) {
-        return hoodCMDs.moveToAngle(angle);
-    }
+    // public Command hoodFollow(DoubleSupplier angle) {
+    //     return hoodCMDs.moveToAngle(angle);
+    // }
 
     // public Command climb() {
     //     return elevatorCMDs.moveToHeight(ELEVATOR_CLIMB_HEIGHT_METERS).withName("climb");

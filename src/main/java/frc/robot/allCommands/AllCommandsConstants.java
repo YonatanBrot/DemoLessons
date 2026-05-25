@@ -11,6 +11,6 @@ public class AllCommandsConstants {
     public static final double ELEVATOR_CLIMB_HEIGHT_METERS = 0;
     public static final double ELEVATOR_UNCLIMB_HEIGHT_METERS = 0;
 
-    public static final double FIXED_FLYWHEEL_SPEED = 2000;
-    public static final double FIXED_HOOD_ANGLE = 40;
+    public static final double FIXED_FLYWHEEL_SPEED = 2100;
+    public static final double FIXED_HOOD_ANGLE = 41;
 }

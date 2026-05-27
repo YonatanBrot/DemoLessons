@@ -69,7 +69,7 @@ public class AllCommands {
 
     public Command fixedShoot() {
         return Commands.parallel(
-            flyWheelCMDs.reachSpeed(() -> FIXED_FLYWHEEL_SPEED),
+            flyWheelCMDs.reachSpeed(FIXED_FLYWHEEL_SPEED),
             hoodCMDs.moveToAngle(FIXED_HOOD_ANGLE),
             Commands.repeatingSequence(
                 Commands.waitUntil(() -> flyWheel.isAtSpeed(FIXED_FLYWHEEL_SPEED)), 
@@ -84,7 +84,7 @@ public class AllCommands {
     public Command getReadyToShoot(DoubleSupplier speedRPM, DoubleSupplier angle) {
         return Commands.parallel(
                 hoodCMDs.moveToAngle(angle),
-                flyWheelCMDs.reachSpeed(speedRPM)).withName("getReadyToShoot");
+                flyWheelCMDs.reachSpeed(speedRPM.getAsDouble())).withName("getReadyToShoot");
     }
 
     public Command shoot(DoubleSupplier speedRPM, DoubleSupplier angle) {

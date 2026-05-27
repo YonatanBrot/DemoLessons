@@ -28,13 +28,13 @@ public class FourbarCommands {
 
     public Command open() {
         return fourbar.run(() -> {
-            fourbar.setVoltage(-4, false);
+            fourbar.setVoltage(4, false);
         })
         .finallyDo(fourbar::stop)
         .withTimeout(1)
         .andThen(Commands.repeatingSequence(
             fourbar.run(() -> {
-                fourbar.setVoltage(0.5, false);
+                fourbar.setVoltage(-0.5, false);
             })
             .finallyDo(fourbar::stop),
             Commands.waitSeconds(4)
@@ -43,7 +43,7 @@ public class FourbarCommands {
 
     public Command close() {
         return fourbar.run(() -> {
-            fourbar.setVoltage(4, false);
+            fourbar.setVoltage(-4, false);
         }).finallyDo(fourbar::stop)
         .withTimeout(2);
     }

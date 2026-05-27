@@ -21,7 +21,7 @@ public class Const {
     public static final double SPEED_TOLERENCE = 120;
 
     public static final double MAX_VOLTAGE = 12;
-    public static final double MIN = 12;
+    public static final double MIN_VOLTAGE = 12;
 
     public static class CurrentLimits {
         public static final double STATOR_CURRENT_LIMIT = 90;

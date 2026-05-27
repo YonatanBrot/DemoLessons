@@ -56,11 +56,11 @@ public class AllCommands {
     }
 
     public Command intake() {
-        return Commands.parallel(
-            fourbarCMDs.open(),
-            rollerCMDs.spin(12)
-        )
-        .withName("Intake");
+        // return Commands.parallel(
+        //     fourbarCMDs.open(),
+            return rollerCMDs.spin(12);
+        // )
+        // .withName("Intake");
     }
 
     public Command stopIntake() {
@@ -79,6 +79,7 @@ public class AllCommands {
     public Command spindexBack() {
         return indexCMDs.spinBoth(0, -SPINDEX_VOLTAGE);
     }
+
 
     public Command getReadyToShoot(DoubleSupplier speedRPM, DoubleSupplier angle) {
         return Commands.parallel(

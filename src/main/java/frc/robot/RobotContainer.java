@@ -139,7 +139,7 @@ private final NaturalXboxController driverController = new NaturalXboxController
         driverController.a().whileTrue(allCommands.fixedShoot());
         driverController.x().whileTrue(allCommands.spindexBack());
 
-        driverController.y().whileTrue(allCommands.stopIntake());
+        //driverController.y().whileTrue(allCommands.stopIntake());
     }
 
     public void configureOperator() {

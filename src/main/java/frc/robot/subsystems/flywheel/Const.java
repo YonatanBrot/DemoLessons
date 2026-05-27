@@ -23,5 +23,12 @@ public class Const {
     public static final double MAX_VOLTAGE = 12;
     public static final double MIN = 12;
 
+    public static class CurrentLimits {
+        public static final double STATOR_CURRENT_LIMIT = 90;
+        public static final double SUPPLY_CURRENT_LIMIT = 60;
+        public static final double SUPPLY_CURRENT_LOWER_LIMIT = 40;
+        public static final double SUPPLY_CURRENT_LOWER_TIME = 2;
+    }
+
 
 }

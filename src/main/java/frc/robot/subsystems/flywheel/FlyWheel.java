@@ -1,78 +1,32 @@
 package frc.robot.subsystems.flywheel;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//ignore these:
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
-import frc.robot.subsystems.flywheel.io.*;
-import frc.robot.utils.TunableSimpleMotorFeedforward;
+import frc.robot.simples.FlyWheelInterface;
 
-import static frc.robot.subsystems.flywheel.FlyWheelConstants.*;
-import team2679.atlantiskit.logfields.LogFieldsTable;
-import team2679.atlantiskit.tunables.Tunable;
-import team2679.atlantiskit.tunables.TunableBuilder;
-import team2679.atlantiskit.tunables.TunablesManager;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
-public class FlyWheel extends SubsystemBase implements Tunable {
-    private final LogFieldsTable fieldsTable = new LogFieldsTable(getName());
+//look at these:
+import com.ctre.phoenix6.hardware.TalonFX;
+//זה המנוע
 
-    private final FlyWheelIO io = Robot.isReal() 
-        ? new FlyWheelIOFalcon(fieldsTable) 
-        : new FlyWheelIOSim(fieldsTable);
+//יש לנו שני דרכים לקבוע כמה המנוע יסתובב:
+//לתת ל
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+//זה אובייקט שאיתו עושים קונפיגורציה למנוע
+// current limits -אתם תצטרכו רק לגשת לתכונה אחת שלו
 
-    private final PIDController pid = new PIDController(KP, KI, KD);
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 
-    private final TunableSimpleMotorFeedforward feedforward = new TunableSimpleMotorFeedforward(KS, KV, KA);
+import static frc.robot.subsystems.flywheel.Const.*;
+//כאן נמצאים כל מיני ערכים שתצטרכו - תסתכלו על הקובץ הזה
 
-    public FlyWheel() {
-        fieldsTable.update();
-        TunablesManager.add(getName(), (Tunable) this);
-    }
 
-    @Override
-    public void periodic() {
-        fieldsTable.recordOutput("current command", getCurrentCommand() != null ? getCurrentCommand().getName() : "None");
-        fieldsTable.recordOutput("currents diff", Math.abs(io.motor1Current.getAsDouble() - io.motor2Current.getAsDouble()));
-        SmartDashboard.putNumber("Motors RPM", getMotorsRPM());
-    }
-
-    public double getMotorsRPM(){
-        return io.motorsRPM.getAsDouble();
-    }
-
-    public void setVoltage(double volt){
-        fieldsTable.recordOutput("Desired voltage", volt);
-        io.setVoltage(MathUtil.clamp(volt, -MAX_VOLTAGE, MAX_VOLTAGE));
-    }
-    public double calculateVoltage(double desiredSpeed, boolean usePID) {
-        fieldsTable.recordOutput("Desired RPM", desiredSpeed);
-        isAtSpeed(desiredSpeed);
-        double voltage = feedforward.calculate(desiredSpeed);
-        if (usePID) {
-            voltage += pid.calculate(getMotorsRPM(), desiredSpeed);
-        }
-        return voltage;
-    }
-
-    public boolean isAtSpeed(double targetSpeedRpm){
-        boolean isAtSpeed = Math.abs(targetSpeedRpm - getMotorsRPM()) < FlyWheelConstants.SPEED_TOLERANCE_RPM;
-        SmartDashboard.putBoolean("Flywheel at speed:", isAtSpeed);
-        fieldsTable.recordOutput("Flywheel at speed", isAtSpeed);
-        return isAtSpeed;
-    }
-
-    public void stop(){
-        io.setVoltage(0);
-    }
-
-    public void resetPID() {
-        pid.reset();
-    }
-
-    @Override
-    public void initTunable(TunableBuilder builder) {
-        builder.addChild("Flywheel PID", pid);
-        builder.addChild("Flywheel FeedForward", feedforward);
-    }
+@SuppressWarnings("unused")
+public class FlyWheel extends SubsystemBase implements FlyWheelInterface{
+    
+    
 }

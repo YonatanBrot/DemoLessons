@@ -1,4 +1,4 @@
-package frc.robot.simples;
+package frc.robot.Demo_helpers;
 
 public interface FlyWheelInterface {
     public void setSpeed(double speed);

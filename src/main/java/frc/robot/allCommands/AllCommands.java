@@ -1,10 +1,10 @@
 package frc.robot.allCommands;
 
+import frc.robot.Demo_helpers.FlyWheelCommands;
 import frc.robot.shooting.ShootingCalculator;
 // import frc.robot.subsystems.elevator.Elevator;
 // import frc.robot.subsystems.elevator.ElevatorCommands;
 import frc.robot.subsystems.flywheel.FlyWheel;
-import frc.robot.subsystems.flywheel.FlyWheelCommands;
 import frc.robot.subsystems.fourbar.Fourbar;
 import frc.robot.subsystems.fourbar.FourbarCommands;
 import frc.robot.subsystems.hood.Hood;

@@ -1,8 +1,9 @@
-package frc.robot.subsystems.flywheel;
+package frc.robot.Demo_helpers;
 
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.flywheel.FlyWheel;
 
 public class FlyWheelCommands {
     private FlyWheel flyWheel;

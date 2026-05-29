@@ -57,5 +57,12 @@
     "edu.wpi.first.math.**.proto.*",
     "edu.wpi.first.math.**.struct.*",
   ],
-  "java.dependency.enableDependencyCheckup": false
+  "java.dependency.enableDependencyCheckup": false,
+
+  // "editor.suggest.showClasses": false,
+  // "editor.suggest.showInterfaces": false,
+  // "editor.suggest.showEnums": false,
+  // "editor.suggest.showStructs": false,
+  // "editor.suggest.showModules": false
+  
 }

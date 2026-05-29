@@ -9,7 +9,6 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.flywheel.Const.CurrentLimits;
 import frc.robot.subsystems.flywheel.Const.IDs;
 import frc.robot.subsystems.flywheel.Const.kFF;
@@ -21,7 +20,7 @@ import static frc.robot.subsystems.flywheel.Const.*;
 // - writing public and private
 // - types
 
-public class Example extends SubsystemBase implements FlyWheelInterface{
+public class Example extends FlyWheelBase{
     private TalonFX motor1 = new TalonFX(IDs.FLYWHEEL_MOTOR1_ID);
     private TalonFX motor2 = new TalonFX(IDs.FLYWHEEL_MOTOR2_ID);
     private PIDController pid = new PIDController(kPID.KP, kPID.KI, kPID.KD); 

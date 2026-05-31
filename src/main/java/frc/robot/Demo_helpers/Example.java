@@ -13,6 +13,7 @@ import frc.robot.subsystems.flywheel.Const.CurrentLimits;
 import frc.robot.subsystems.flywheel.Const.IDs;
 import frc.robot.subsystems.flywheel.Const.kFF;
 import frc.robot.subsystems.flywheel.Const.kPID;
+import team2679.atlantiskit.logfields.LogFieldsTable;
 
 import static frc.robot.subsystems.flywheel.Const.*;
 
@@ -26,6 +27,7 @@ public class Example extends FlyWheelBase{
     private PIDController pid = new PIDController(kPID.KP, kPID.KI, kPID.KD); 
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kFF.KS, kFF.KV, kFF.KA);
     //בשניהם - לוודאת שהסדר נכון
+    private LogFieldsTable logFieldsTable = new LogFieldsTable("Flywheel");
     public Example() {
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.CurrentLimits.StatorCurrentLimit = CurrentLimits.STATOR_CURRENT_LIMIT;
@@ -41,6 +43,9 @@ public class Example extends FlyWheelBase{
         motor2.setControl(new Follower(
             IDs.FLYWHEEL_MOTOR1_ID, MotorAlignmentValue.Aligned));
         //כל השורה הנאצית הזאת
+        logFieldsTable.addDouble("current 1", this::getMotor1Current);
+        logFieldsTable.addDouble("current 2", this::getMotor2Current);
+        logFieldsTable.addDouble("speed", this::getSpeed);
     }
 
     public void setSpeed(double speedRPM) {
@@ -52,10 +57,12 @@ public class Example extends FlyWheelBase{
         VoltageOut volts = new VoltageOut(volt);
         //מעצבנים CTRE אובייקט וולט כי
         motor1.setControl(volts);
+        logFieldsTable.recordOutput("volt", volt);
     }
 
     public void manualController(double speed){
         motor1.setControl(new VoltageOut(MAX_VOLTAGE*speed));
+        logFieldsTable.recordOutput("volt", MAX_VOLTAGE*speed);
     }
 
     public double getMotor1Current() {

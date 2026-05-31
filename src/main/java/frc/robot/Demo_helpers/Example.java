@@ -49,6 +49,7 @@ public class Example extends FlyWheelBase{
         //PID ואז מוסיפים FF לדאוג שמחשבים 
         volt = MathUtil.clamp(volt, MAX_VOLTAGE, MIN_VOLTAGE);
         //They 100% will forget the clamp
+        log("volt", volt);
         VoltageOut volts = new VoltageOut(volt);
         //מעצבנים CTRE אובייקט וולט כי
         motor1.setControl(volts);
@@ -56,6 +57,7 @@ public class Example extends FlyWheelBase{
 
     public void manualController(double speed){
         motor1.setControl(new VoltageOut(MAX_VOLTAGE*speed));
+        log("volt", MAX_VOLTAGE*speed);
     }
 
     public double getMotor1Current() {

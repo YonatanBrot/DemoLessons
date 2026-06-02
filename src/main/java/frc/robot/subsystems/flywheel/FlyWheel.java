@@ -1,36 +1,26 @@
 package frc.robot.subsystems.flywheel;
 
-//בקלאסים האלה אתם לא צריכים להשתמש:
+//בקלאס הזה אתם לא צריכים להשתמש:
 import frc.robot.Demo_helpers.FlyWheelBase;
 
 //בכל הקלאסים האלה אתם צריכים להשתמש, לפחות פעם אחת. אם לא השתמשתם בהם, יש לכם טעות:
 import com.ctre.phoenix6.hardware.TalonFX;
 /* זה המנוע
-
-יש לנו שני דרכים לקבוע כמה המנוע יסתובב:
-שיוצרים עם ערך דאבל VoltageOut לתת לו אובייקט 
-או
-לתת לו מנוע אחר לעקוב אחריו
-MotorAllignmentValueוכיוון, אחד מהכיוונים שמוגדרים ב ID שניתן לו Follower בשביל זה ניצור אובייקט 
-
-setControl ניתן אותו לפונקציה (Follower or VoltageOut) לאחר שיש לנו את האובייקט הדרוש */
-
+:יש לנו 2 דרכים לשלוט ברובוט
+setVoltage הראשונה היא לתת לו וולטים ישירות, בעזרת
+השנייה היא לגרום לו להעתיק את התנועות של מנוע אחר
+ של מנוע לעקוב אחריו וכיוון (זהה או הפוך) ID שמקבל ,Follower כדי לעשות את זה צריך ליצור אובייקט
+MotorAlignmentValue את הכיוון מביאים מהקבועים בקלאס */
 import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 //זה אובייקט שאיתו עושים קונפיגורציה למנוע
 //current אתם צריכים ליצור אחד כזה, ואז לערוך אותו כך שיכיל את המגבלות 
+//כל המגבלות מופיעות בקובץ הקבועים, ולחלקם לא צריך רק להכיל אלא 
+//trueל enabled גם לשנות את המשתנה שקובע האם הם 
 
 //ומשם תמשיכו לבד ,getConfigurator() לאחר שסיימתם ליצור את האובייקט - תקחו את אובייקט המנוע שלכם, תקראו לפונקציה
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-
-import static frc.robot.subsystems.flywheel.Const.*;
-//כאן נמצאים כל מיני ערכים שתצטרכו - תסתכלו על הקובץ הזה
-//לכל ערך יש שימוש כלשהו, אם לא השתמשתם בכולם עשיתם טעות
 
 import team2679.atlantiskit.logfields.LogFieldsTable;
 /* זה האובייקט של הלוגים
@@ -44,13 +34,16 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 לכן היא לא מקבל ערך אחד, אלא פונקציה מסוימת שמחזירה ערך מהסוג הזה
 כמו שהסברתי supplier כדי להעביר פונקציה - ניצור */
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+
+import static frc.robot.subsystems.flywheel.Const.*;
+//כאן נמצאים כל מיני ערכים שתצטרכו - תסתכלו על הקובץ הזה
+//לכל ערך יש שימוש כלשהו, אם לא השתמשתם בכולם עשיתם טעות
+
 @SuppressWarnings("unused")
 public class FlyWheel extends FlyWheelBase{
     
-
-
-
-
 
     /* (אחת מהפונקציות שאתם צריכים ליצור) :manual controller הסבר על הפונקציה
     לפעמים דברים לא עובדים, ואנחנו רוצים לשלוט על דברים ידנית עם השלט

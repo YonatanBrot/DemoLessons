@@ -30,7 +30,11 @@ import static frc.robot.subsystems.flywheel.Const.*;
 
 @SuppressWarnings("unused")
 public class FlyWheel extends FlyWheelBase{
-    
+    /* כל התכונות שאתם תצטרכו הוגדרו מראש:
+    שני מנועים, motor1 & motor2
+    feedforward & PIDמחשבון וולטים שמכיל את ה
+    בנאי יהיה עליכם לתת למשתנים ערכים constructorב
+    */
 
     /* (אחת מהפונקציות שאתם צריכים ליצור) :manual controller הסבר על הפונקציה
     לפעמים דברים לא עובדים, ואנחנו רוצים לשלוט על דברים ידנית עם השלט

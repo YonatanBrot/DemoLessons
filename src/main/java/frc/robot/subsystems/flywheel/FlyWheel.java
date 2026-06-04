@@ -9,7 +9,7 @@ import frc.robot.Demo_helpers.Motor;
 
 יש לנו שני דרכים לקבוע כמה המנוע יסתובב
 מחזיר feedforwardישירות, כמו שה voltage הראשונה היא לתת 
-IDהשנייה היא לתת מנוע אחר לעקוב אחריו, בעזרת ה */
+IDהשנייה היא לתת מנוע אחר לעקוב אחריו, בעזרת ה*/
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 //זה אובייקט שאיתו מכילים הגדרות שונות על המנוע
@@ -17,23 +17,16 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 //ומשם תמשיכו לבד ,getConfigurator() לאחר שסיימתם ליצור את האובייקט - תקחו את אובייקט המנוע שלכם, תקראו לפונקציה
 
-
 import static frc.robot.subsystems.flywheel.Const.*;
 //כאן נמצאים כל מיני ערכים שתצטרכו - תסתכלו על הקובץ הזה
 //לכל ערך יש שימוש כלשהו, אם לא השתמשתם בכולם עשיתם טעות
-
-
-// (לשמור אותם לאחר כך) לכל ערך שאנחנו נותנים לרובוט צריך לעשות לוג 
-// (בדוגמא הזו, הערך היחיד הזה הוא וולטים)
-// log() כדי לעשות את זה, תקראו לפונקציה הסטטית
-
 
 @SuppressWarnings("unused")
 public class FlyWheel extends FlyWheelBase{
     /* כל התכונות שאתם תצטרכו הוגדרו מראש:
     שני מנועים, motor1 & motor2
     feedforward & PIDמחשבון וולטים שמכיל את ה
-    בנאי יהיה עליכם לתת למשתנים ערכים constructorב
+    בנאי) יהיה עליכם לתת למשתנים ערכים) constructorב
     */
 
     /* (אחת מהפונקציות שאתם צריכים ליצור) :manual controller הסבר על הפונקציה

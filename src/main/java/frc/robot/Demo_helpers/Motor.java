@@ -12,4 +12,12 @@ public class Motor extends TalonFX{
     public void follow(int motorID) {
         this.setControl(new Follower(motorID, MotorAlignmentValue.Aligned));
     }
+
+    public double getCurrent() {
+        return this.getStatorCurrent().getValueAsDouble();
+    }
+
+    public double getSpeed() {
+        return this.getVelocity().getValueAsDouble();
+    }
 }

@@ -15,7 +15,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-//זה אובייקט שאיתו עושים קונפיגורציה למנוע
+//זה אובייקט שאיתו מכילים הגדרות על מנוע
 //current אתם צריכים ליצור אחד כזה, ואז לערוך אותו כך שיכיל את המגבלות 
 //כל המגבלות מופיעות בקובץ הקבועים, ולחלקם לא צריך רק להכיל אלא 
 //trueל enabled גם לשנות את המשתנה שקובע האם הם 
@@ -32,7 +32,7 @@ import team2679.atlantiskit.logfields.LogFieldsTable;
 
 להוסיף את הערך כל הזמן logsהפונקציה הזאת תגיד ל .(יש את סוג האובייקט Type כאשר במקום) addType הפונקציה השנייה נקראת
 לכן היא לא מקבל ערך אחד, אלא פונקציה מסוימת שמחזירה ערך מהסוג הזה
-כמו שהסברתי supplier כדי להעביר פונקציה - ניצור */
+object::method כדי להעביר פונקציה - לכתוב */
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
